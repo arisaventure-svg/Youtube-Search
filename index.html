@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Watch Later">
+<title>Watch Later — Distraction Free</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --surface2: #1f232d;
+    --border: #2a2f3a;
+    --text: #e8eaf0;
+    --muted: #9aa2b1;
+    --accent: #e5484d;
+    --accent-soft: rgba(229, 72, 77, 0.14);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  header.topbar {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+  }
+  .logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--accent); display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex: none;
+  }
+  .title h1 { font-size: 18px; font-weight: 650; letter-spacing: -0.2px; }
+  .title p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .spacer { flex: 1; }
+
+  .tabs { display: flex; gap: 6px; }
+  .tab {
+    background: transparent; border: 1px solid transparent; color: var(--muted);
+    padding: 7px 14px; border-radius: 999px; font-size: 13.5px; cursor: pointer;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); border-color: var(--border); }
+
+  .searchwrap { position: relative; margin-bottom: 10px; }
+  .searchwrap svg {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 17px; height: 17px; color: var(--muted); pointer-events: none;
+  }
+  input.search {
+    width: 100%; padding: 14px 18px 14px 46px; font-size: 15.5px;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    outline: none; font-family: inherit;
+  }
+  input.search:focus { border-color: #4a5264; }
+  input.search::placeholder { color: var(--muted); }
+
+  .hint { font-size: 12.5px; color: var(--muted); margin: 0 2px 18px; }
+
+  .scope { display: flex; gap: 6px; margin: 0 0 12px; }
+  .scopebtn {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    padding: 5px 13px; border-radius: 999px; font-size: 12.5px; cursor: pointer; font-family: inherit;
+  }
+  .scopebtn:hover { color: var(--text); }
+  .scopebtn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .loading { text-align: center; color: var(--muted); font-size: 13.5px; padding: 30px 0; }
+
+  /* category chips (library browsing) */
+  .catchips { display: flex; gap: 6px; margin: 0 0 12px; flex-wrap: wrap; }
+  .catchip {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    padding: 4px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+  .catchip:hover { color: var(--text); }
+  .catchip.active { background: var(--surface2); border-color: #4a5264; color: var(--text); }
+
+  /* save-to-category popover */
+  .catwrap { position: relative; display: inline-block; }
+  .catmenu {
+    position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  }
+  .catmenu button {
+    background: none; border: none; color: var(--text); font-size: 12.5px;
+    padding: 7px 10px; border-radius: 7px; cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .catmenu button:hover { background: var(--accent-soft); color: var(--accent); }
+
+  .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+  }
+  select.catselect {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-size: 12px; padding: 5px 8px; border-radius: 8px; font-family: inherit; cursor: pointer;
+  }
+
+  .empty {
+    text-align: center; padding: 70px 20px; color: var(--muted);
+  }
+  .empty .big { font-size: 34px; margin-bottom: 14px; }
+  .empty p { font-size: 14px; line-height: 1.6; max-width: 420px; margin: 0 auto; }
+  .empty button { margin-top: 18px; }
+
+  .count { font-size: 12.5px; color: var(--muted); margin: 4px 2px 14px; }
+
+  .results { display: flex; flex-direction: column; gap: 10px; }
+  .card {
+    display: flex; gap: 14px; padding: 10px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; text-align: left; width: 100%; font-family: inherit; color: var(--text);
+  }
+  .card:hover { background: var(--surface2); }
+  .thumb {
+    width: 168px; height: 94px; flex: none; border-radius: 8px; overflow: hidden;
+    background: #000; position: relative;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb .dur {
+    position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.8);
+    font-size: 11px; padding: 2px 5px; border-radius: 4px; color: #fff;
+  }
+  .meta { flex: 1; min-width: 0; padding: 4px 4px 4px 0; display: flex; flex-direction: column; }
+  .meta .vtitle {
+    font-size: 14.5px; font-weight: 550; line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .meta .vchan { font-size: 13px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .meta .vchan .chip {
+    background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer;
+    padding: 0; font-family: inherit; text-decoration: none;
+  }
+  .meta .vchan .chip:hover { color: var(--text); text-decoration: underline; }
+  .meta .actions { margin-top: auto; display: flex; gap: 8px; padding-top: 8px; }
+
+  .btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-size: 12.5px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit;
+  }
+  .btn:hover { border-color: #4a5264; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .btn.saved { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .btn.danger:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* channels view */
+  .chanlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+  .chancard {
+    padding: 16px; border-radius: var(--radius); background: var(--surface);
+    border: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px;
+  }
+  .chancard .cname { font-weight: 600; font-size: 14.5px; cursor: pointer; }
+  .chancard .cname:hover { text-decoration: underline; }
+  .chancard .ccount { font-size: 12.5px; color: var(--muted); }
+  .chancard .cactions { display: flex; gap: 8px; margin-top: 10px; }
+
+  /* player modal */
+  .playerwrap {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 4vh 4vw;
+  }
+  .playerbox { width: min(1100px, 100%); }
+  .playerframe { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; }
+  .playerframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .playermeta { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .playermeta .pt { font-size: 15px; font-weight: 600; flex: 1; }
+  .hidden { display: none !important; }
+
+  /* import panel */
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 14px;
+  }
+  .panel h3 { font-size: 14.5px; margin-bottom: 6px; }
+  .panel p { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+  textarea.paste {
+    width: 100%; min-height: 90px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+    font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    resize: vertical; outline: none;
+  }
+  textarea.paste:focus { border-color: #4a5264; }
+  .row { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+  .note { font-size: 12px; color: var(--muted); }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 18px; border-radius: 10px; font-size: 13.5px; z-index: 100;
+    opacity: 0; transition: opacity .25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  input[type="file"] { display: none; }
+  @media (max-width: 560px) {
+    .app { padding: 18px 12px 60px; }
+    header.topbar { flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .logo { width: 32px; height: 32px; font-size: 15px; }
+    .title h1 { font-size: 16px; }
+    .tabs { width: 100%; order: 3; }
+    .tab { flex: 1; text-align: center; padding: 9px 6px; font-size: 13px; }
+    input.search { padding: 13px 14px 13px 44px; font-size: 16px; } /* 16px stops iOS zoom-on-focus */
+    .thumb { width: 116px; height: 65px; }
+    .meta .vtitle { font-size: 13.5px; }
+    .meta .actions { flex-wrap: wrap; }
+    .btn { padding: 8px 12px; }        /* bigger touch targets */
+    .catchip, .scopebtn { padding: 7px 12px; }
+    .chanlist { grid-template-columns: 1fr; }
+    .catmenu { bottom: auto; top: calc(100% + 6px); }
+  }
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .app { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo">▶</div>
+    <div class="title">
+      <h1>Watch Later</h1>
+    </div>
+    <div class="spacer"></div>
+    <nav class="tabs">
+      <button class="tab active" data-view="search" onclick="setView('search')">Search</button>
+      <button class="tab" data-view="channels" onclick="setView('channels')">Saved channels</button>
+      <button class="tab" data-view="library" onclick="setView('library')">Manage</button>
+    </nav>
+  </header>
+
+  <!-- SEARCH VIEW -->
+  <section id="view-search">
+    <div class="searchwrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="search" id="q" type="text" autocomplete="off" autofocus>
+    </div>
+    <div class="scope">
+      <button class="scopebtn active" id="scopeYt" onclick="setScope('youtube')">All of YouTube</button>
+      <button class="scopebtn" id="scopeLib" onclick="setScope('library')">My library</button>
+    </div>
+    <div class="catchips hidden" id="catChips"></div>
+    <p class="hint" id="searchHint"></p>
+    <div id="searchResults" class="results"></div>
+    <div id="searchEmpty" class="empty"></div>
+  </section>
+
+  <!-- CHANNELS VIEW -->
+  <section id="view-channels" class="hidden">
+    <p class="hint">Channels you've saved. Click one to see its videos in your library.</p>
+    <div id="chanList" class="chanlist"></div>
+    <div id="chanEmpty" class="empty">
+      <div class="big">⭐</div>
+      <p>No saved channels yet. Search for a video and hit <b>Save channel</b> on any result.</p>
+    </div>
+  </section>
+
+  <!-- LIBRARY / MANAGE VIEW -->
+  <section id="view-library" class="hidden">
+    <div class="panel">
+      <h3>Add videos by link</h3>
+      <p>Paste YouTube links (one per line, or mixed in text). Titles and channels are fetched automatically when you're online.</p>
+      <textarea class="paste" id="pasteBox" placeholder="https://www.youtube.com/watch?v=…&#10;https://youtu.be/…"></textarea>
+      <div class="row">
+        <button class="btn primary" onclick="importPasted()">Add videos</button>
+        <span class="note" id="pasteStatus"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Import Watch Later export</h3>
+      <p>Load a Google Takeout CSV (<i>Watch later-videos.csv</i>) or a JSON backup made by this app.</p>
+      <div class="row">
+        <button class="btn" onclick="document.getElementById('fileCsv').click()">Import Takeout CSV</button>
+        <button class="btn" onclick="document.getElementById('fileJson').click()">Import JSON backup</button>
+        <input type="file" id="fileCsv" accept=".csv" onchange="importCsv(this.files[0])">
+        <input type="file" id="fileJson" accept=".json" onchange="importJson(this.files[0])">
+      </div>
+    </div>
+    <div class="panel">
+      <h3>YouTube search connection (optional)</h3>
+      <p>YouTube-wide search works out of the box through public mirrors. For a faster, more reliable direct connection, paste your own free <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" style="color:var(--accent)">YouTube Data API v3 key</a>. It's stored only in this browser.</p>
+      <div class="row">
+        <input class="search" style="padding:10px 14px;font-size:13px;flex:1;min-width:200px" id="apiKeyBox" type="text" placeholder="AIza…" autocomplete="off">
+        <button class="btn" onclick="saveApiKey()">Save key</button>
+        <span class="note" id="apiKeyStatus"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Backup &amp; library</h3>
+      <p id="libStats"></p>
+      <div class="row">
+        <button class="btn" onclick="exportJson()">Export JSON backup</button>
+        <button class="btn danger" onclick="clearLibrary()">Clear all videos</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- PLAYER -->
+<div id="player" class="playerwrap hidden" onclick="if(event.target===this)closePlayer()">
+  <div class="playerbox">
+    <div class="playerframe"><iframe id="playerFrame" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <div class="playermeta">
+      <div class="pt" id="playerTitle"></div>
+      <button class="btn hidden" id="btnMirror" onclick="nextMirror()">Not playing? Try another mirror</button>
+      <button class="btn" onclick="watchOnYt()">Watch on YouTube</button>
+      <button class="btn" onclick="closePlayer()">Close ✕</button>
+    </div>
+    <p class="note hidden" id="mirrorNote" style="margin-top:8px">Playing via a mirror player — YouTube blocks direct playback for apps opened from disk. For native YouTube playback inside the app, start it with “Start Watch Later.command”.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ data ============
+   Video: {id, title, channel, channelUrl, duration, addedAt}
+   Channel save: {name, url}
+   Embedded seed data can be injected between the markers below. */
+const SEED_VIDEOS = /*SEED_START*/[]/*SEED_END*/;
+
+const store = {
+  load(key, fallback) {
+    try { const v = localStorage.getItem('wl_' + key); return v ? JSON.parse(v) : fallback; }
+    catch (e) { return fallback; }
+  },
+  save(key, val) {
+    try { localStorage.setItem('wl_' + key, JSON.stringify(val)); }
+    catch (e) { toast('Could not save — browser storage unavailable'); }
+  }
+};
+
+let videos = store.load('videos', null);
+if (videos === null) { videos = SEED_VIDEOS.slice(); store.save('videos', videos); }
+else if (SEED_VIDEOS.length) {
+  // merge any new seed videos not already present
+  const have = new Set(videos.map(v => v.id));
+  const fresh = SEED_VIDEOS.filter(v => !have.has(v.id));
+  if (fresh.length) { videos = videos.concat(fresh); store.save('videos', videos); }
+}
+let savedChannels = store.load('channels', []);
+
+/* categories */
+const CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
+let migrated = false;
+for (const v of videos) if (!v.category) { v.category = 'Others'; migrated = true; }
+if (migrated) store.save('videos', videos);
+
+/* ============ helpers ============ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function thumbUrl(id) { return 'https://i.ytimg.com/vi/' + id + '/mqdefault.jpg'; }
+function isChannelSaved(name) { return savedChannels.some(c => c.name === name); }
+function videoCountFor(name) { return videos.filter(v => v.channel === name).length; }
+
+/* ============ views ============ */
+let currentView = 'search';
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
+  ['search','channels','library'].forEach(x => $('view-' + x).classList.toggle('hidden', x !== v));
+  if (v === 'channels') renderChannels();
+  if (v === 'library') renderLibStats();
+  if (v === 'search') { $('q').focus(); renderSearch(); }
+}
+
+/* ============ search ============ */
+let scope = 'youtube';
+let ytResults = [];
+let catFilter = 'All';
+function setScope(s) {
+  scope = s;
+  $('scopeLib').classList.toggle('active', s === 'library');
+  $('scopeYt').classList.toggle('active', s === 'youtube');
+  $('catChips').classList.toggle('hidden', s !== 'library');
+  if (s === 'library') renderCatChips();
+  $('searchResults').innerHTML = '';
+  renderSearch();
+  $('q').focus();
+}
+function renderCatChips() {
+  $('catChips').innerHTML = ['All'].concat(CATEGORIES).map(c =>
+    `<button class="catchip ${catFilter === c ? 'active' : ''}" onclick="setCatFilter('${c}')">${c}${c !== 'All' ? ' (' + videos.filter(v => v.category === c).length + ')' : ''}</button>`
+  ).join('');
+}
+function setCatFilter(c) {
+  catFilter = c;
+  renderCatChips();
+  renderSearch();
+}
+
+function renderSearch() {
+  if (scope === 'youtube') { renderYtIdle(); return; }
+  const q = $('q').value.trim().toLowerCase();
+  const box = $('searchResults'), empty = $('searchEmpty'), hint = $('searchHint');
+  box.innerHTML = '';
+  const pool = catFilter === 'All' ? videos : videos.filter(v => v.category === catFilter);
+  if (!q && catFilter === 'All') {
+    hint.textContent = '';
+    return;
+  }
+  empty.classList.add('hidden');
+  const terms = q ? q.split(/\s+/) : [];
+  const hits = pool.filter(v => {
+    const hay = (v.title + ' ' + v.channel).toLowerCase();
+    return terms.every(t => hay.includes(t));
+  });
+  hint.textContent = hits.length + (hits.length === 1 ? ' video' : ' videos') + (catFilter !== 'All' ? ' in ' + catFilter : '');
+  box.innerHTML = hits.map(cardHtml).join('');
+}
+
+/* ============ YouTube-wide search ============ */
+function renderYtIdle() {
+  if (!ytResults.length) $('searchHint').textContent = '';
+}
+function fmtSecs(s) {
+  s = Math.round(s);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+}
+function fetchTimeout(url, ms) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), ms);
+  return fetch(url, { signal: c.signal }).finally(() => clearTimeout(t));
+}
+const PIPED_INSTANCES = ['https://pipedapi.kavin.rocks', 'https://api.piped.private.coffee', 'https://pipedapi.drgns.space'];
+const INVIDIOUS_INSTANCES = ['https://inv.nadeko.net', 'https://invidious.nerdvpn.de', 'https://yewtu.be'];
+
+async function ytSearchFetch(q) {
+  const key = store.load('apikey', '');
+  // 1) direct API if the user added a key
+  if (key) {
+    try {
+      const r = await fetchTimeout('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&q=' + encodeURIComponent(q) + '&key=' + encodeURIComponent(key), 8000);
+      const j = await r.json();
+      if (j.items) return j.items.filter(it => it.id && it.id.videoId).map(it => ({
+        id: it.id.videoId,
+        title: (it.snippet.title || '').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
+        channel: it.snippet.channelTitle || 'Unknown channel',
+        channelUrl: 'https://www.youtube.com/channel/' + it.snippet.channelId,
+        duration: ''
+      }));
+    } catch (e) { /* fall through to mirrors */ }
+  }
+  // 2) Piped mirrors
+  for (const base of PIPED_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/search?q=' + encodeURIComponent(q) + '&filter=videos', 6000);
+      const j = await r.json();
+      const items = (j.items || []).filter(it => it.url && it.url.includes('watch?v='));
+      if (items.length) return items.map(it => ({
+        id: it.url.split('watch?v=')[1].slice(0, 11),
+        title: it.title,
+        channel: it.uploaderName || 'Unknown channel',
+        channelUrl: it.uploaderUrl ? 'https://www.youtube.com' + it.uploaderUrl : '',
+        duration: it.duration > 0 ? fmtSecs(it.duration) : ''
+      }));
+    } catch (e) { /* try next */ }
+  }
+  // 3) Invidious mirrors
+  for (const base of INVIDIOUS_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/api/v1/search?q=' + encodeURIComponent(q) + '&type=video', 6000);
+      const j = await r.json();
+      if (Array.isArray(j) && j.length) return j.filter(it => it.videoId).map(it => ({
+        id: it.videoId,
+        title: it.title,
+        channel: it.author || 'Unknown channel',
+        channelUrl: it.authorUrl ? 'https://www.youtube.com' + it.authorUrl : '',
+        duration: it.lengthSeconds > 0 ? fmtSecs(it.lengthSeconds) : ''
+      }));
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+
+async function runYtSearch() {
+  const q = $('q').value.trim();
+  if (!q) return;
+  const box = $('searchResults'), empty = $('searchEmpty'), hint = $('searchHint');
+  empty.classList.add('hidden');
+  hint.textContent = '';
+  box.innerHTML = '<div class="loading">Searching YouTube…</div>';
+  const found = await ytSearchFetch(q);
+  if (found === null) {
+    box.innerHTML = '';
+    hint.textContent = 'Could not reach YouTube search right now. Check your connection, try again, or add an API key in Manage for a direct connection.';
+    return;
+  }
+  ytResults = found;
+  hint.textContent = found.length + (found.length === 1 ? ' result' : ' results') + ' from YouTube';
+  box.innerHTML = found.map((v, i) => ytCardHtml(v, i)).join('');
+}
+
+function ytCardHtml(v, i) {
+  const lib = videos.find(x => x.id === v.id);
+  const chanSaved = isChannelSaved(v.channel);
+  const saveBtn = lib
+    ? `<button class="btn saved" onclick="event.stopPropagation();">✓ Saved in ${esc(lib.category || 'Others')}</button>`
+    : `<div class="catwrap">
+        <button class="btn" onclick="event.stopPropagation();toggleCatMenu(${i})">＋ Save video…</button>
+        <div class="catmenu hidden" id="catmenu-${i}">
+          ${CATEGORIES.map(c => `<button onclick="event.stopPropagation();ytSaveVideo(${i}, '${c}')">${c}</button>`).join('')}
+        </div>
+      </div>`;
+  return `<div class="card" onclick="ytPlay(${i})">
+    <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}</div>
+    <div class="meta">
+      <div class="vtitle">${esc(v.title)}</div>
+      <div class="vchan">${esc(v.channel)}</div>
+      <div class="actions">
+        ${saveBtn}
+        <button class="btn ${chanSaved ? 'saved' : ''}" onclick="event.stopPropagation();ytToggleChannel(${i})">${chanSaved ? '★ Channel saved' : '☆ Save channel'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleCatMenu(i) {
+  const menu = $('catmenu-' + i);
+  const wasHidden = menu.classList.contains('hidden');
+  document.querySelectorAll('.catmenu').forEach(m => m.classList.add('hidden'));
+  if (wasHidden) menu.classList.remove('hidden');
+}
+document.addEventListener('click', () => document.querySelectorAll('.catmenu').forEach(m => m.classList.add('hidden')));
+function ytPlay(i) {
+  const v = ytResults[i]; if (!v) return;
+  openPlayer(v.id, v.title);
+}
+function ytSaveVideo(i, cat) {
+  const v = ytResults[i]; if (!v) return;
+  const added = addVideos([Object.assign({}, v, { category: cat || 'Others' })]);
+  toast(added ? 'Saved to ' + (cat || 'Others') : 'Already in your library');
+  $('searchResults').innerHTML = ytResults.map((x, n) => ytCardHtml(x, n)).join('');
+}
+function ytToggleChannel(i) {
+  const v = ytResults[i]; if (!v) return;
+  toggleChannel(v.channel, v.channelUrl || '');
+  $('searchResults').innerHTML = ytResults.map((x, n) => ytCardHtml(x, n)).join('');
+}
+function saveApiKey() {
+  const k = $('apiKeyBox').value.trim();
+  store.save('apikey', k);
+  $('apiKeyStatus').textContent = k ? 'Key saved.' : 'Key removed — using public mirrors.';
+}
+
+function cardHtml(v) {
+  const saved = isChannelSaved(v.channel);
+  const catOptions = CATEGORIES.map(c => `<option ${v.category === c ? 'selected' : ''}>${c}</option>`).join('');
+  return `<div class="card" onclick="playVideo('${esc(v.id)}')">
+    <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}</div>
+    <div class="meta">
+      <div class="vtitle">${esc(v.title)}</div>
+      <div class="vchan"><button class="chip" onclick="event.stopPropagation();searchFor('${esc(v.channel).replace(/'/g, "\\'")}')">${esc(v.channel)}</button><span class="badge">${esc(v.category || 'Others')}</span></div>
+      <div class="actions">
+        <select class="catselect" onclick="event.stopPropagation()" onchange="setVideoCategory('${esc(v.id)}', this.value)">${catOptions}</select>
+        <button class="btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();toggleChannel('${esc(v.channel).replace(/'/g, "\\'")}','${esc(v.channelUrl || '')}')">${saved ? '★ Channel saved' : '☆ Save channel'}</button>
+        <button class="btn danger" onclick="event.stopPropagation();removeVideo('${esc(v.id)}')">Remove</button>
+      </div>
+    </div>
+  </div>`;
+}
+function setVideoCategory(id, cat) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  v.category = cat;
+  store.save('videos', videos);
+  toast('Moved to ' + cat);
+  if (scope === 'library') { renderCatChips(); renderSearch(); }
+}
+
+function searchFor(text) { setView('search'); $('q').value = text; renderSearch(); }
+
+/* ============ channels ============ */
+function toggleChannel(name, url) {
+  if (isChannelSaved(name)) savedChannels = savedChannels.filter(c => c.name !== name);
+  else { savedChannels.push({ name, url }); toast('Saved channel: ' + name); }
+  store.save('channels', savedChannels);
+  renderSearch();
+  if (currentView === 'channels') renderChannels();
+}
+function renderChannels() {
+  const list = $('chanList'), empty = $('chanEmpty');
+  if (!savedChannels.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  list.innerHTML = savedChannels
+    .slice().sort((a, b) => a.name.localeCompare(b.name))
+    .map(c => `<div class="chancard">
+      <div class="cname" onclick="searchFor('${esc(c.name).replace(/'/g, "\\'")}')">${esc(c.name)}</div>
+      <div class="ccount">${videoCountFor(c.name)} video(s) in your library</div>
+      <div class="cactions">
+        <button class="btn" onclick="searchFor('${esc(c.name).replace(/'/g, "\\'")}')">Show videos</button>
+        <button class="btn danger" onclick="toggleChannel('${esc(c.name).replace(/'/g, "\\'")}','')">Unsave</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ============ player ============ */
+/* YouTube's embedded player refuses pages that send no referrer (Error 153),
+   which is every page opened from disk (file://). Served over http (the
+   launcher), the native embed works. From disk we fall back to mirror
+   players (Invidious), which don't require a referrer. */
+const IS_FILE = location.protocol === 'file:';
+const EMBED_MIRRORS = ['https://inv.nadeko.net/embed/', 'https://invidious.nerdvpn.de/embed/', 'https://yewtu.be/embed/'];
+let currentPlayId = null;
+let mirrorIdx = 0;
+function watchOnYt() {
+  if (!currentPlayId) return;
+  window.open('https://www.youtube.com/watch?v=' + currentPlayId, '_blank');
+}
+function nextMirror() {
+  if (!currentPlayId) return;
+  mirrorIdx = (mirrorIdx + 1) % EMBED_MIRRORS.length;
+  $('playerFrame').src = EMBED_MIRRORS[mirrorIdx] + currentPlayId + '?autoplay=1';
+  toast('Trying mirror ' + (mirrorIdx + 1) + ' of ' + EMBED_MIRRORS.length);
+}
+function openPlayer(id, title) {
+  // Straight to YouTube in a new tab — with the Quiet YouTube extension
+  // installed, the watch page is already stripped of recommendations.
+  currentPlayId = id;
+  window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+}
+function playVideo(id) {
+  const v = videos.find(x => x.id === id);
+  openPlayer(id, v ? v.title : '');
+}
+function closePlayer() {
+  $('playerFrame').src = 'about:blank';
+  $('player').classList.add('hidden');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+
+/* ============ library management ============ */
+function removeVideo(id) {
+  videos = videos.filter(v => v.id !== id);
+  store.save('videos', videos);
+  renderSearch(); toast('Removed from library');
+}
+function clearLibrary() {
+  if (!confirm('Remove ALL videos from your library? Saved channels are kept.')) return;
+  videos = []; store.save('videos', videos);
+  renderLibStats(); renderSearch(); toast('Library cleared');
+}
+function renderLibStats() {
+  $('libStats').textContent = videos.length + ' videos, ' + savedChannels.length + ' saved channels. Data lives in this browser — export a backup if you want a portable copy.';
+}
+function addVideos(list) {
+  const have = new Set(videos.map(v => v.id));
+  let added = 0;
+  for (const v of list) {
+    if (!v.id || have.has(v.id)) continue;
+    have.add(v.id);
+    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: CATEGORIES.includes(v.category) ? v.category : 'Others', addedAt: v.addedAt || new Date().toISOString().slice(0, 10) });
+    added++;
+  }
+  store.save('videos', videos);
+  return added;
+}
+
+/* --- paste import (fetches metadata via noembed, works cross-origin) --- */
+function extractIds(text) {
+  const ids = [];
+  const re = /(?:youtube\.com\/(?:watch\?[^\s]*v=|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/g;
+  let m; while ((m = re.exec(text))) if (!ids.includes(m[1])) ids.push(m[1]);
+  return ids;
+}
+async function importPasted() {
+  const text = $('pasteBox').value;
+  const ids = extractIds(text);
+  const status = $('pasteStatus');
+  if (!ids.length) { status.textContent = 'No YouTube links found.'; return; }
+  status.textContent = 'Fetching info for ' + ids.length + ' video(s)…';
+  const results = [];
+  for (const id of ids) {
+    let meta = { id };
+    try {
+      const r = await fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id));
+      const j = await r.json();
+      if (j && j.title) { meta.title = j.title; meta.channel = j.author_name; meta.channelUrl = j.author_url; }
+    } catch (e) { /* offline — keep bare entry */ }
+    results.push(meta);
+  }
+  const added = addVideos(results);
+  status.textContent = 'Added ' + added + ' new video(s).';
+  $('pasteBox').value = '';
+  renderLibStats();
+}
+
+/* --- Takeout CSV import --- */
+function parseCsvLine(line) {
+  const out = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') inQ = false;
+      else cur += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+function importCsv(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const lines = reader.result.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) { toast('Empty CSV'); return; }
+    const header = parseCsvLine(lines[0]).map(h => h.trim().toLowerCase());
+    const idCol = header.findIndex(h => h.includes('video id'));
+    const entries = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cells = parseCsvLine(lines[i]);
+      const id = (idCol >= 0 ? cells[idCol] : cells[0] || '').trim();
+      if (/^[A-Za-z0-9_-]{11}$/.test(id)) entries.push({ id });
+    }
+    if (!entries.length) { toast('No video IDs found in CSV'); return; }
+    toast('Importing ' + entries.length + ' videos, fetching titles…');
+    for (const e of entries) {
+      try {
+        const r = await fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + e.id));
+        const j = await r.json();
+        if (j && j.title) { e.title = j.title; e.channel = j.author_name; e.channelUrl = j.author_url; }
+      } catch (err) { /* keep bare */ }
+    }
+    const added = addVideos(entries);
+    renderLibStats(); renderSearch();
+    toast('Added ' + added + ' new video(s) from CSV');
+  };
+  reader.readAsText(file);
+}
+
+/* --- JSON backup --- */
+function importJson(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const vids = Array.isArray(data) ? data : (data.videos || []);
+      const added = addVideos(vids);
+      if (data.channels) {
+        for (const c of data.channels) if (c.name && !isChannelSaved(c.name)) savedChannels.push(c);
+        store.save('channels', savedChannels);
+      }
+      renderLibStats(); renderSearch();
+      toast('Imported ' + added + ' new video(s)');
+    } catch (e) { toast('Could not read that JSON file'); }
+  };
+  reader.readAsText(file);
+}
+function exportJson() {
+  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'watchlater-backup.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============ init ============ */
+$('q').addEventListener('input', () => { if (scope === 'library') renderSearch(); });
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter' && scope === 'youtube') runYtSearch(); });
+$('apiKeyBox').value = store.load('apikey', '');
+setScope('youtube');
+</script>
+</body>
+</html>
