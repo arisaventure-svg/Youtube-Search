@@ -287,6 +287,19 @@
       </div>
     </div>
     <div class="panel">
+      <h3>Sync across devices (optional)</h3>
+      <p>Keeps your library identical on Mac and iPhone by storing it in the GitHub repository that hosts this app. Create a token at github.com → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b>: Repository access = only your app repo, Permissions → Contents = <b>Read and write</b>. Paste it here on each device (it stays in this browser only).</p>
+      <div class="row">
+        <input class="search" style="padding:10px 14px;font-size:13px;flex:1;min-width:170px" id="syncRepoBox" type="text" placeholder="username/repository" autocomplete="off">
+        <input class="search" style="padding:10px 14px;font-size:13px;flex:1;min-width:170px" id="syncTokenBox" type="password" placeholder="github_pat_…" autocomplete="off">
+      </div>
+      <div class="row">
+        <button class="btn primary" onclick="saveSyncCfg()">Save &amp; sync now</button>
+        <button class="btn" onclick="syncNow(true)">Sync now</button>
+        <span class="note" id="syncStatus"></span>
+      </div>
+    </div>
+    <div class="panel">
       <h3>YouTube search connection (optional)</h3>
       <p>YouTube-wide search works out of the box through public mirrors. For a faster, more reliable direct connection, paste your own free <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" style="color:var(--accent)">YouTube Data API v3 key</a>. It's stored only in this browser.</p>
       <div class="row">
@@ -355,6 +368,14 @@ const CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
 let migrated = false;
 for (const v of videos) if (!v.category) { v.category = 'Others'; migrated = true; }
 if (migrated) store.save('videos', videos);
+
+/* deletion tombstones — let removals sync across devices */
+let deletedVideos = store.load('deletedVideos', {});
+let deletedChannels = store.load('deletedChannels', {});
+function saveTombstones() {
+  store.save('deletedVideos', deletedVideos);
+  store.save('deletedChannels', deletedChannels);
+}
 
 /* ============ helpers ============ */
 const $ = id => document.getElementById(id);
@@ -577,7 +598,8 @@ function setVideoCategory(id, cat) {
   const v = videos.find(x => x.id === id);
   if (!v) return;
   v.category = cat;
-  store.save('videos', videos);
+  v.ts = Date.now();
+  store.save('videos', videos); scheduleSync();
   toast('Moved to ' + cat);
   if (scope === 'library') { renderCatChips(); renderSearch(); }
 }
@@ -586,9 +608,15 @@ function searchFor(text) { setView('search'); $('q').value = text; renderSearch(
 
 /* ============ channels ============ */
 function toggleChannel(name, url) {
-  if (isChannelSaved(name)) savedChannels = savedChannels.filter(c => c.name !== name);
-  else { savedChannels.push({ name, url }); toast('Saved channel: ' + name); }
-  store.save('channels', savedChannels);
+  if (isChannelSaved(name)) {
+    savedChannels = savedChannels.filter(c => c.name !== name);
+    deletedChannels[name] = Date.now();
+  } else {
+    savedChannels.push({ name, url, ts: Date.now() });
+    delete deletedChannels[name];
+    toast('Saved channel: ' + name);
+  }
+  store.save('channels', savedChannels); saveTombstones(); scheduleSync();
   renderSearch();
   if (currentView === 'channels') renderChannels();
 }
@@ -646,12 +674,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(
 /* ============ library management ============ */
 function removeVideo(id) {
   videos = videos.filter(v => v.id !== id);
-  store.save('videos', videos);
+  deletedVideos[id] = Date.now();
+  store.save('videos', videos); saveTombstones(); scheduleSync();
   renderSearch(); toast('Removed from library');
 }
 function clearLibrary() {
   if (!confirm('Remove ALL videos from your library? Saved channels are kept.')) return;
-  videos = []; store.save('videos', videos);
+  for (const v of videos) deletedVideos[v.id] = Date.now();
+  videos = []; store.save('videos', videos); saveTombstones(); scheduleSync();
   renderLibStats(); renderSearch(); toast('Library cleared');
 }
 function renderLibStats() {
@@ -663,10 +693,12 @@ function addVideos(list) {
   for (const v of list) {
     if (!v.id || have.has(v.id)) continue;
     have.add(v.id);
-    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: CATEGORIES.includes(v.category) ? v.category : 'Others', addedAt: v.addedAt || new Date().toISOString().slice(0, 10) });
+    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: CATEGORIES.includes(v.category) ? v.category : 'Others', addedAt: v.addedAt || new Date().toISOString().slice(0, 10), ts: v.ts || Date.now() });
+    delete deletedVideos[v.id];
     added++;
   }
   store.save('videos', videos);
+  if (added) { saveTombstones(); scheduleSync(); }
   return added;
 }
 
@@ -756,6 +788,9 @@ function importJson(file) {
       const data = JSON.parse(reader.result);
       const vids = Array.isArray(data) ? data : (data.videos || []);
       const added = addVideos(vids);
+      for (const [id, ts] of Object.entries(data.deletedVideos || {})) deletedVideos[id] = Math.max(deletedVideos[id] || 0, ts);
+      for (const [n, ts] of Object.entries(data.deletedChannels || {})) deletedChannels[n] = Math.max(deletedChannels[n] || 0, ts);
+      saveTombstones();
       if (data.channels) {
         for (const c of data.channels) if (c.name && !isChannelSaved(c.name)) savedChannels.push(c);
         store.save('channels', savedChannels);
@@ -766,8 +801,98 @@ function importJson(file) {
   };
   reader.readAsText(file);
 }
+/* ============ cross-device sync via GitHub ============ */
+let syncCfg = store.load('sync', { repo: '', token: '' });
+let syncTimer = null;
+let lastPushedStr = null;
+
+function guessRepo() {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if (!m) return '';
+  const seg = location.pathname.split('/').filter(Boolean)[0] || '';
+  return seg ? m[1] + '/' + seg : '';
+}
+function setSyncStatus(msg) { const el = $('syncStatus'); if (el) el.textContent = msg; }
+function saveSyncCfg() {
+  syncCfg = { repo: $('syncRepoBox').value.trim(), token: $('syncTokenBox').value.trim() };
+  store.save('sync', syncCfg);
+  if (syncCfg.repo && syncCfg.token) syncNow(true);
+  else setSyncStatus('Fill in both fields to enable sync.');
+}
+function b64enc(s) { return btoa(unescape(encodeURIComponent(s))); }
+function b64dec(s) { return decodeURIComponent(escape(atob(s.replace(/\s/g, '')))); }
+function ghHeaders() {
+  return { 'Authorization': 'Bearer ' + syncCfg.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' };
+}
+async function ghGet() {
+  const r = await fetch('https://api.github.com/repos/' + syncCfg.repo + '/contents/data.json', { headers: ghHeaders() });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('GitHub error ' + r.status);
+  const j = await r.json();
+  return { sha: j.sha, data: JSON.parse(b64dec(j.content)) };
+}
+async function ghPut(payload, sha) {
+  const body = { message: 'Sync Watch Later library', content: b64enc(JSON.stringify(payload, null, 1)) };
+  if (sha) body.sha = sha;
+  const r = await fetch('https://api.github.com/repos/' + syncCfg.repo + '/contents/data.json', { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) throw new Error('GitHub error ' + r.status);
+}
+function mergeRemote(remote) {
+  // tombstones: newest wins
+  for (const [id, ts] of Object.entries(remote.deletedVideos || {})) deletedVideos[id] = Math.max(deletedVideos[id] || 0, ts);
+  for (const [n, ts] of Object.entries(remote.deletedChannels || {})) deletedChannels[n] = Math.max(deletedChannels[n] || 0, ts);
+  // videos: union by id, newer record wins
+  const byId = {};
+  for (const v of (remote.videos || []).concat(videos)) {
+    const cur = byId[v.id];
+    if (!cur || (v.ts || 0) >= (cur.ts || 0)) byId[v.id] = v;
+  }
+  videos = Object.values(byId)
+    .filter(v => !(deletedVideos[v.id] && deletedVideos[v.id] >= (v.ts || 0)))
+    .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  // channels: union by name, newer wins
+  const byName = {};
+  for (const c of (remote.channels || []).concat(savedChannels)) {
+    const cur = byName[c.name];
+    if (!cur || (c.ts || 0) >= (cur.ts || 0)) byName[c.name] = c;
+  }
+  savedChannels = Object.values(byName)
+    .filter(c => !(deletedChannels[c.name] && deletedChannels[c.name] >= (c.ts || 0)));
+  store.save('videos', videos);
+  store.save('channels', savedChannels);
+  saveTombstones();
+}
+function syncPayload() {
+  return { videos, channels: savedChannels, deletedVideos, deletedChannels };
+}
+async function syncNow(manual) {
+  if (!syncCfg.repo || !syncCfg.token) { if (manual) setSyncStatus('Set repository and token first.'); return; }
+  setSyncStatus('Syncing…');
+  try {
+    const remote = await ghGet();
+    if (remote) mergeRemote(remote.data);
+    const payload = syncPayload();
+    const str = JSON.stringify(payload);
+    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {} }) : null;
+    if (str !== remoteStr) { await ghPut(payload, remote ? remote.sha : undefined); }
+    lastPushedStr = str;
+    setSyncStatus('Synced ✓ ' + new Date().toLocaleTimeString());
+    if (manual) toast('Synced with GitHub');
+    if (currentView === 'channels') renderChannels();
+    if (scope === 'library') { renderCatChips(); }
+    renderSearch(); renderLibStats();
+  } catch (e) {
+    setSyncStatus('Sync failed — ' + e.message + (e.message.includes('401') ? ' (check your token)' : ''));
+  }
+}
+function scheduleSync() {
+  if (!syncCfg.repo || !syncCfg.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => syncNow(false), 2500);
+}
+
 function exportJson() {
-  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels, deletedVideos, deletedChannels }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'watchlater-backup.json';
@@ -779,7 +904,10 @@ function exportJson() {
 $('q').addEventListener('input', () => { if (scope === 'library') renderSearch(); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Enter' && scope === 'youtube') runYtSearch(); });
 $('apiKeyBox').value = store.load('apikey', '');
+$('syncRepoBox').value = syncCfg.repo || guessRepo();
+$('syncTokenBox').value = syncCfg.token || '';
 setScope('youtube');
+if (syncCfg.repo && syncCfg.token) syncNow(false);
 </script>
 </body>
 </html>
