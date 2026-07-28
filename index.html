@@ -656,10 +656,19 @@ function nextMirror() {
   toast('Trying mirror ' + (mirrorIdx + 1) + ' of ' + EMBED_MIRRORS.length);
 }
 function openPlayer(id, title) {
-  // Straight to YouTube in a new tab — with the Quiet YouTube extension
-  // installed, the watch page is already stripped of recommendations.
   currentPlayId = id;
-  window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+  // Hosted over https, the embed player works (it gets a referrer) —
+  // play inside the app: no YouTube page at all, on Mac and iPhone alike.
+  if (location.protocol.startsWith('http')) {
+    $('playerTitle').textContent = title || '';
+    $('btnMirror').classList.add('hidden');
+    $('mirrorNote').classList.add('hidden');
+    $('playerFrame').src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    $('player').classList.remove('hidden');
+  } else {
+    // Opened from disk: embeds are blocked there, fall back to YouTube.
+    window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+  }
 }
 function playVideo(id) {
   const v = videos.find(x => x.id === id);
