@@ -1,5 +1,16 @@
 {
- "videos": [],
+ "videos": [
+  {
+   "id": "QzF7o4sjoYo",
+   "title": "30 MIN FULL BODY STRENGTH WORKOUT (MadFit App Express Program)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "33:53",
+   "category": "Workouts",
+   "addedAt": "2026-07-28",
+   "ts": 1785218106168
+  }
+ ],
  "channels": [],
  "deletedVideos": {},
  "deletedChannels": {}
