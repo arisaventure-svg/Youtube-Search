@@ -211,16 +211,6 @@
    "ts": 1785458871965
   },
   {
-   "id": "MrgucgFtOwc",
-   "title": "Full UPPER BODY Workout (15 Min, At Home, One Set Of Dumbbells)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "18:14",
-   "category": "Workouts",
-   "addedAt": "2026-07-31",
-   "ts": 1785458874148
-  },
-  {
    "id": "UVrN1vVfoOY",
    "title": "Pantry Recipes: Lentils, 4 ways.",
    "channel": "Ethan Chlebowski",
@@ -249,6 +239,17 @@
    "category": "Others",
    "addedAt": "2026-07-31",
    "ts": 1785471086584
+  },
+  {
+   "id": "MrgucgFtOwc",
+   "title": "Full UPPER BODY Workout (15 Min, At Home, One Set Of Dumbbells)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "18:14",
+   "category": "Workouts",
+   "addedAt": "2026-07-31",
+   "ts": 1785474430874,
+   "fav": true
   }
  ],
  "channels": [
@@ -271,5 +272,8 @@
  "deletedVideos": {
   "2Z9g-AZinUc": 1785218557048
  },
- "deletedChannels": {}
+ "deletedChannels": {},
+ "customCats": [],
+ "deletedCats": {},
+ "progress": {}
 }
