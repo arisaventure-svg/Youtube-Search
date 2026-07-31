@@ -107,6 +107,12 @@
     background: var(--surface2); border: 1px solid var(--border); color: var(--text);
     font-size: 12px; padding: 5px 8px; border-radius: 8px; font-family: inherit; cursor: pointer;
   }
+  textarea.notebox {
+    width: 100%; margin-top: 8px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+    font-size: 12.5px; font-family: inherit; min-height: 54px; resize: vertical; outline: none;
+  }
+  textarea.notebox:focus { border-color: #4a5264; }
 
   .empty {
     text-align: center; padding: 70px 20px; color: var(--muted);
@@ -132,6 +138,10 @@
   .thumb .dur {
     position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,0.8);
     font-size: 11px; padding: 2px 5px; border-radius: 4px; color: #fff;
+  }
+  .thumb .pbar {
+    position: absolute; left: 0; bottom: 0; height: 3px; background: var(--accent);
+    border-radius: 0 2px 2px 0;
   }
   .meta { flex: 1; min-width: 0; padding: 4px 4px 4px 0; display: flex; flex-direction: column; }
   .meta .vtitle {
@@ -287,6 +297,12 @@
       </div>
     </div>
     <div class="panel">
+      <h3>Categories</h3>
+      <p>The four built-in categories are permanent; ones you add are listed here.</p>
+      <div class="row" id="catManageList"></div>
+      <div class="row"><button class="btn" onclick="promptNewCategory()">＋ Add category</button></div>
+    </div>
+    <div class="panel">
       <h3>Sync across devices (optional)</h3>
       <p>Keeps your library identical on Mac and iPhone by storing it in the GitHub repository that hosts this app. Create a token at github.com → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b>: Repository access = only your app repo, Permissions → Contents = <b>Read and write</b>. Paste it here on each device (it stays in this browser only).</p>
       <div class="row">
@@ -309,12 +325,22 @@
       </div>
     </div>
     <div class="panel">
+      <h3>App updates</h3>
+      <p>Got a new version file? Install it from here — the app uploads it to your repository itself (uses your sync token). No GitHub website needed.</p>
+      <div class="row">
+        <button class="btn primary" onclick="document.getElementById('fileUpdate').click()">Install update from file</button>
+        <input type="file" id="fileUpdate" accept=".html" onchange="installUpdate(this.files[0]);this.value=''">
+        <span class="note" id="updateStatus"></span>
+      </div>
+    </div>
+    <div class="panel">
       <h3>Backup &amp; library</h3>
       <p id="libStats"></p>
       <div class="row">
         <button class="btn" onclick="exportJson()">Export JSON backup</button>
         <button class="btn danger" onclick="clearLibrary()">Clear all videos</button>
       </div>
+      <p class="note" style="margin-top:12px">App version 11 — favorites on top · tab switch clears search · one-click updates · in-app player · resume · sync · categories · favorites · notes</p>
     </div>
   </section>
 </div>
@@ -363,8 +389,44 @@ else if (SEED_VIDEOS.length) {
 }
 let savedChannels = store.load('channels', []);
 
-/* categories */
-const CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
+/* categories — four built-ins plus user-added custom ones */
+const BASE_CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
+let customCats = store.load('customCats', []);        // [{name, ts}]
+let deletedCats = store.load('deletedCats', {});      // {name: ts}
+function allCategories() { return BASE_CATEGORIES.concat(customCats.map(c => c.name)); }
+function saveCats() { store.save('customCats', customCats); store.save('deletedCats', deletedCats); }
+function addCategory(name) {
+  name = (name || '').trim();
+  if (!name) return null;
+  if (name.length > 24) { toast('Category name too long'); return null; }
+  const existing = allCategories().find(c => c.toLowerCase() === name.toLowerCase());
+  if (existing) return existing;
+  customCats.push({ name, ts: Date.now() });
+  delete deletedCats[name];
+  saveCats(); scheduleSync();
+  return name;
+}
+function promptNewCategory(forYtIdx) {
+  const name = prompt('Name for the new category:');
+  if (name === null) return;
+  const added = addCategory(name);
+  if (!added) return;
+  toast('Category: ' + added);
+  if (typeof forYtIdx === 'number') ytSaveVideo(forYtIdx, added);
+  if (scope === 'library') renderCatChips();
+  if (currentView === 'library') renderManageCats();
+}
+function removeCategoryIdx(i) {
+  const c = customCats[i]; if (!c) return;
+  if (!confirm('Delete category "' + c.name + '"? Its videos move to Others.')) return;
+  customCats = customCats.filter((_, n) => n !== i);
+  deletedCats[c.name] = Date.now();
+  for (const v of videos) if (v.category === c.name) { v.category = 'Others'; v.ts = Date.now(); }
+  store.save('videos', videos); saveCats(); scheduleSync();
+  if (catFilter === c.name) catFilter = 'All';
+  renderManageCats();
+  if (scope === 'library') { renderCatChips(); renderSearch(); }
+}
 let migrated = false;
 for (const v of videos) if (!v.category) { v.category = 'Others'; migrated = true; }
 if (migrated) store.save('videos', videos);
@@ -407,19 +469,26 @@ function setScope(s) {
   scope = s;
   $('scopeLib').classList.toggle('active', s === 'library');
   $('scopeYt').classList.toggle('active', s === 'youtube');
+  $('q').value = '';          // fresh start when switching tabs
+  ytResults = [];
   $('catChips').classList.toggle('hidden', s !== 'library');
   if (s === 'library') renderCatChips();
   $('searchResults').innerHTML = '';
   renderSearch();
   $('q').focus();
 }
+let chipKeys = [];
 function renderCatChips() {
-  $('catChips').innerHTML = ['All'].concat(CATEGORIES).map(c =>
-    `<button class="catchip ${catFilter === c ? 'active' : ''}" onclick="setCatFilter('${c}')">${c}${c !== 'All' ? ' (' + videos.filter(v => v.category === c).length + ')' : ''}</button>`
-  ).join('');
+  const favCount = videos.filter(v => v.fav).length;
+  chipKeys = ['All', '__fav'].concat(allCategories());
+  const labels = { 'All': 'All', '__fav': '★ Favorites (' + favCount + ')' };
+  $('catChips').innerHTML = chipKeys.map((k, i) => {
+    const label = labels[k] || (esc(k) + ' (' + videos.filter(v => v.category === k).length + ')');
+    return `<button class="catchip ${catFilter === k ? 'active' : ''}" onclick="setCatFilterIdx(${i})">${label}</button>`;
+  }).join('') + `<button class="catchip" onclick="promptNewCategory()" title="Add a category">＋</button>`;
 }
-function setCatFilter(c) {
-  catFilter = c;
+function setCatFilterIdx(i) {
+  catFilter = chipKeys[i] || 'All';
   renderCatChips();
   renderSearch();
 }
@@ -429,7 +498,9 @@ function renderSearch() {
   const q = $('q').value.trim().toLowerCase();
   const box = $('searchResults'), empty = $('searchEmpty'), hint = $('searchHint');
   box.innerHTML = '';
-  const pool = catFilter === 'All' ? videos : videos.filter(v => v.category === catFilter);
+  const pool = catFilter === 'All' ? videos
+    : catFilter === '__fav' ? videos.filter(v => v.fav)
+    : videos.filter(v => v.category === catFilter);
   if (!q && catFilter === 'All') {
     hint.textContent = '';
     return;
@@ -439,8 +510,8 @@ function renderSearch() {
   const hits = pool.filter(v => {
     const hay = (v.title + ' ' + v.channel).toLowerCase();
     return terms.every(t => hay.includes(t));
-  });
-  hint.textContent = hits.length + (hits.length === 1 ? ' video' : ' videos') + (catFilter !== 'All' ? ' in ' + catFilter : '');
+  }).sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0));   // favorites float to the top
+  hint.textContent = hits.length + (hits.length === 1 ? ' video' : ' videos') + (catFilter === '__fav' ? ' in Favorites' : catFilter !== 'All' ? ' in ' + catFilter : '');
   box.innerHTML = hits.map(cardHtml).join('');
 }
 
@@ -535,7 +606,8 @@ function ytCardHtml(v, i) {
     : `<div class="catwrap">
         <button class="btn" onclick="event.stopPropagation();toggleCatMenu(${i})">＋ Save video…</button>
         <div class="catmenu hidden" id="catmenu-${i}">
-          ${CATEGORIES.map(c => `<button onclick="event.stopPropagation();ytSaveVideo(${i}, '${c}')">${c}</button>`).join('')}
+          ${allCategories().map((c, ci) => `<button onclick="event.stopPropagation();ytSaveVideoCat(${i}, ${ci})">${esc(c)}</button>`).join('')}
+          <button onclick="event.stopPropagation();promptNewCategory(${i})">＋ New category…</button>
         </div>
       </div>`;
   return `<div class="card" onclick="ytPlay(${i})">
@@ -561,6 +633,7 @@ function ytPlay(i) {
   const v = ytResults[i]; if (!v) return;
   openPlayer(v.id, v.title);
 }
+function ytSaveVideoCat(i, ci) { ytSaveVideo(i, allCategories()[ci]); }
 function ytSaveVideo(i, cat) {
   const v = ytResults[i]; if (!v) return;
   const added = addVideos([Object.assign({}, v, { category: cat || 'Others' })]);
@@ -578,21 +651,59 @@ function saveApiKey() {
   $('apiKeyStatus').textContent = k ? 'Key saved.' : 'Key removed — using public mirrors.';
 }
 
+const notesOpen = new Set();
+function durSecs(d) {
+  if (!d) return 0;
+  const parts = String(d).split(':').map(Number);
+  if (parts.some(isNaN)) return 0;
+  return parts.reduce((acc, n) => acc * 60 + n, 0);
+}
+function pbarHtml(v) {
+  const p = progress[v.id], total = durSecs(v.duration);
+  if (!p || !total || p.t < 10) return '';
+  const pct = Math.min(98, Math.round(p.t / total * 100));
+  return `<div class="pbar" style="width:${pct}%"></div>`;
+}
 function cardHtml(v) {
   const saved = isChannelSaved(v.channel);
-  const catOptions = CATEGORIES.map(c => `<option ${v.category === c ? 'selected' : ''}>${c}</option>`).join('');
+  const catOptions = allCategories().map(c => `<option ${v.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  const noteOpen = notesOpen.has(v.id);
   return `<div class="card" onclick="playVideo('${esc(v.id)}')">
-    <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}</div>
+    <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}${pbarHtml(v)}</div>
     <div class="meta">
-      <div class="vtitle">${esc(v.title)}</div>
+      <div class="vtitle">${v.fav ? '<span style="color:var(--accent)">★</span> ' : ''}${esc(v.title)}</div>
       <div class="vchan"><button class="chip" onclick="event.stopPropagation();searchFor('${esc(v.channel).replace(/'/g, "\\'")}')">${esc(v.channel)}</button><span class="badge">${esc(v.category || 'Others')}</span></div>
       <div class="actions">
+        <button class="btn ${v.fav ? 'saved' : ''}" title="Favorite" onclick="event.stopPropagation();toggleFav('${esc(v.id)}')">${v.fav ? '★' : '☆'}</button>
         <select class="catselect" onclick="event.stopPropagation()" onchange="setVideoCategory('${esc(v.id)}', this.value)">${catOptions}</select>
+        <button class="btn ${v.note ? 'saved' : ''}" onclick="event.stopPropagation();toggleNote('${esc(v.id)}')">${v.note ? '🗒 Note •' : '🗒 Note'}</button>
         <button class="btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();toggleChannel('${esc(v.channel).replace(/'/g, "\\'")}','${esc(v.channelUrl || '')}')">${saved ? '★ Channel saved' : '☆ Save channel'}</button>
         <button class="btn danger" onclick="event.stopPropagation();removeVideo('${esc(v.id)}')">Remove</button>
       </div>
+      ${noteOpen ? `<textarea class="notebox" placeholder="Your notes for this video…" onclick="event.stopPropagation()" oninput="saveNote('${esc(v.id)}', this.value)">${esc(v.note || '')}</textarea>` : ''}
     </div>
   </div>`;
+}
+function toggleFav(id) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  v.fav = !v.fav;
+  v.ts = Date.now();
+  store.save('videos', videos); scheduleSync();
+  if (scope === 'library') { renderCatChips(); renderSearch(); }
+}
+function toggleNote(id) {
+  if (notesOpen.has(id)) notesOpen.delete(id); else notesOpen.add(id);
+  renderSearch();
+}
+let noteTimer = null;
+function saveNote(id, text) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  v.note = text;
+  v.ts = Date.now();
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => { store.save('videos', videos); scheduleSync(); }, 600);
 }
 function setVideoCategory(id, cat) {
   const v = videos.find(x => x.id === id);
@@ -655,19 +766,46 @@ function nextMirror() {
   $('playerFrame').src = EMBED_MIRRORS[mirrorIdx] + currentPlayId + '?autoplay=1';
   toast('Trying mirror ' + (mirrorIdx + 1) + ' of ' + EMBED_MIRRORS.length);
 }
+/* ---- watch-position memory: resume where you left off, synced ---- */
+let progress = store.load('progress', {});   // {videoId: {t: seconds, ts}}
+let progTimer = null;
+function saveProgress(id, t) {
+  if (!id || typeof t !== 'number' || t < 5) return;
+  progress[id] = { t: Math.floor(t), ts: Date.now() };
+  clearTimeout(progTimer);
+  progTimer = setTimeout(() => store.save('progress', progress), 1000);
+}
+function resumeAt(id) {
+  const p = progress[id];
+  return p && p.t > 10 ? Math.max(0, p.t - 3) : 0;   // back up 3s for context
+}
+// The embed sends us time updates when asked (enablejsapi protocol).
+window.addEventListener('message', (e) => {
+  if (e.origin !== 'https://www.youtube.com') return;
+  let d; try { d = JSON.parse(e.data); } catch (err) { return; }
+  if (d.event === 'infoDelivery' && d.info && typeof d.info.currentTime === 'number' && currentPlayId) {
+    saveProgress(currentPlayId, d.info.currentTime);
+  }
+});
+
 function openPlayer(id, title) {
   currentPlayId = id;
+  $('q').value = '';   // clear the search bar once a video is picked
+  const start = resumeAt(id);
   // Hosted over https, the embed player works (it gets a referrer) —
   // play inside the app: no YouTube page at all, on Mac and iPhone alike.
   if (location.protocol.startsWith('http')) {
     $('playerTitle').textContent = title || '';
     $('btnMirror').classList.add('hidden');
     $('mirrorNote').classList.add('hidden');
-    $('playerFrame').src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    $('playerFrame').src = 'https://www.youtube.com/embed/' + id
+      + '?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1'
+      + (start ? '&start=' + start : '')
+      + '&origin=' + encodeURIComponent(location.origin);
     $('player').classList.remove('hidden');
   } else {
-    // Opened from disk: embeds are blocked there, fall back to YouTube.
-    window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+    // Opened from disk: embeds are blocked there, fall back to YouTube (with resume).
+    window.open('https://www.youtube.com/watch?v=' + id + (start ? '&t=' + start + 's' : ''), '_blank');
   }
 }
 function playVideo(id) {
@@ -677,6 +815,9 @@ function playVideo(id) {
 function closePlayer() {
   $('playerFrame').src = 'about:blank';
   $('player').classList.add('hidden');
+  store.save('progress', progress);
+  scheduleSync();                       // push watch position across devices
+  if (scope === 'library') renderSearch();  // refresh progress bars
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
 
@@ -695,6 +836,14 @@ function clearLibrary() {
 }
 function renderLibStats() {
   $('libStats').textContent = videos.length + ' videos, ' + savedChannels.length + ' saved channels. Data lives in this browser — export a backup if you want a portable copy.';
+  renderManageCats();
+}
+function renderManageCats() {
+  const el = $('catManageList');
+  if (!el) return;
+  el.innerHTML = customCats.length
+    ? customCats.map((c, i) => `<span class="badge" style="padding:6px 10px">${esc(c.name)} <button class="chip" style="color:var(--accent)" onclick="removeCategoryIdx(${i})" title="Delete">✕</button></span>`).join('')
+    : '<span class="note">No custom categories yet.</span>';
 }
 function addVideos(list) {
   const have = new Set(videos.map(v => v.id));
@@ -702,7 +851,7 @@ function addVideos(list) {
   for (const v of list) {
     if (!v.id || have.has(v.id)) continue;
     have.add(v.id);
-    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: CATEGORIES.includes(v.category) ? v.category : 'Others', addedAt: v.addedAt || new Date().toISOString().slice(0, 10), ts: v.ts || Date.now() });
+    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: allCategories().includes(v.category) ? v.category : 'Others', fav: !!v.fav, note: v.note || '', addedAt: v.addedAt || new Date().toISOString().slice(0, 10), ts: v.ts || Date.now() });
     delete deletedVideos[v.id];
     added++;
   }
@@ -799,7 +948,8 @@ function importJson(file) {
       const added = addVideos(vids);
       for (const [id, ts] of Object.entries(data.deletedVideos || {})) deletedVideos[id] = Math.max(deletedVideos[id] || 0, ts);
       for (const [n, ts] of Object.entries(data.deletedChannels || {})) deletedChannels[n] = Math.max(deletedChannels[n] || 0, ts);
-      saveTombstones();
+      for (const c of data.customCats || []) if (!allCategories().includes(c.name)) customCats.push(c);
+      saveTombstones(); saveCats();
       if (data.channels) {
         for (const c of data.channels) if (c.name && !isChannelSaved(c.name)) savedChannels.push(c);
         store.save('channels', savedChannels);
@@ -850,6 +1000,20 @@ function mergeRemote(remote) {
   // tombstones: newest wins
   for (const [id, ts] of Object.entries(remote.deletedVideos || {})) deletedVideos[id] = Math.max(deletedVideos[id] || 0, ts);
   for (const [n, ts] of Object.entries(remote.deletedChannels || {})) deletedChannels[n] = Math.max(deletedChannels[n] || 0, ts);
+  for (const [n, ts] of Object.entries(remote.deletedCats || {})) deletedCats[n] = Math.max(deletedCats[n] || 0, ts);
+  // custom categories: union by name, newer wins
+  const byCat = {};
+  for (const c of (remote.customCats || []).concat(customCats)) {
+    const cur = byCat[c.name];
+    if (!cur || (c.ts || 0) >= (cur.ts || 0)) byCat[c.name] = c;
+  }
+  customCats = Object.values(byCat).filter(c => !(deletedCats[c.name] && deletedCats[c.name] >= (c.ts || 0)));
+  saveCats();
+  // watch positions: newer timestamp wins per video
+  for (const [id, p] of Object.entries(remote.progress || {})) {
+    if (!progress[id] || (p.ts || 0) > (progress[id].ts || 0)) progress[id] = p;
+  }
+  store.save('progress', progress);
   // videos: union by id, newer record wins
   const byId = {};
   for (const v of (remote.videos || []).concat(videos)) {
@@ -872,7 +1036,7 @@ function mergeRemote(remote) {
   saveTombstones();
 }
 function syncPayload() {
-  return { videos, channels: savedChannels, deletedVideos, deletedChannels };
+  return { videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, progress };
 }
 async function syncNow(manual) {
   if (!syncCfg.repo || !syncCfg.token) { if (manual) setSyncStatus('Set repository and token first.'); return; }
@@ -882,7 +1046,7 @@ async function syncNow(manual) {
     if (remote) mergeRemote(remote.data);
     const payload = syncPayload();
     const str = JSON.stringify(payload);
-    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {} }) : null;
+    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {}, customCats: remote.data.customCats || [], deletedCats: remote.data.deletedCats || {}, progress: remote.data.progress || {} }) : null;
     if (str !== remoteStr) { await ghPut(payload, remote ? remote.sha : undefined); }
     lastPushedStr = str;
     setSyncStatus('Synced ✓ ' + new Date().toLocaleTimeString());
@@ -900,8 +1064,36 @@ function scheduleSync() {
   syncTimer = setTimeout(() => syncNow(false), 2500);
 }
 
+/* --- self-update: push a new app file to the repo as index.html --- */
+async function installUpdate(file) {
+  if (!file) return;
+  const status = $('updateStatus');
+  if (!syncCfg.repo || !syncCfg.token) { status.textContent = 'Set up sync (repository + token) above first.'; return; }
+  const text = await file.text();
+  if (!text.includes('Watch Later') || !text.includes('App version')) {
+    status.textContent = 'That file doesn’t look like a Watch Later app version.';
+    return;
+  }
+  status.textContent = 'Installing…';
+  try {
+    const path = 'index.html';
+    let sha;
+    const r = await fetch('https://api.github.com/repos/' + syncCfg.repo + '/contents/' + path, { headers: ghHeaders() });
+    if (r.ok) sha = (await r.json()).sha;
+    const body = { message: 'Update Watch Later app', content: b64enc(text) };
+    if (sha) body.sha = sha;
+    const r2 = await fetch('https://api.github.com/repos/' + syncCfg.repo + '/contents/' + path, { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+    if (!r2.ok) throw new Error('GitHub error ' + r2.status);
+    const vm = text.match(/App version \d+[^<]*/);
+    status.textContent = 'Installed' + (vm ? ' (' + vm[0].trim() + ')' : '') + '. The website updates in a few minutes — then reload the app on each device.';
+    toast('Update uploaded to your repository');
+  } catch (e) {
+    status.textContent = 'Update failed — ' + e.message;
+  }
+}
+
 function exportJson() {
-  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels, deletedVideos, deletedChannels }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'watchlater-backup.json';
@@ -912,6 +1104,11 @@ function exportJson() {
 /* ============ init ============ */
 $('q').addEventListener('input', () => { if (scope === 'library') renderSearch(); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Enter' && scope === 'youtube') runYtSearch(); });
+$('playerFrame').addEventListener('load', () => {
+  try {
+    $('playerFrame').contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'wl', channel: 'widget' }), 'https://www.youtube.com');
+  } catch (e) { /* about:blank etc. */ }
+});
 $('apiKeyBox').value = store.load('apikey', '');
 $('syncRepoBox').value = syncCfg.repo || guessRepo();
 $('syncTokenBox').value = syncCfg.token || '';
