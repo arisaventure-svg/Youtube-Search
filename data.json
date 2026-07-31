@@ -273,7 +273,12 @@
   "2Z9g-AZinUc": 1785218557048
  },
  "deletedChannels": {},
- "customCats": [],
+ "customCats": [
+  {
+   "name": "Food",
+   "ts": 1785474929487
+  }
+ ],
  "deletedCats": {},
  "progress": {}
 }
