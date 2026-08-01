@@ -265,18 +265,6 @@
    "ts": 1785547578598,
    "fav": true,
    "note": "Great Upper Body 15min"
-  },
-  {
-   "id": "L0Ji6oTAovo",
-   "title": "15 MIN KILLER HIIT Full Body Workout (No Equipment, At Home)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "18:03",
-   "category": "Self-improvement",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-01",
-   "ts": 1785548010570
   }
  ],
  "channels": [
@@ -297,7 +285,8 @@
   }
  ],
  "deletedVideos": {
-  "2Z9g-AZinUc": 1785218557048
+  "2Z9g-AZinUc": 1785218557048,
+  "L0Ji6oTAovo": 1785548020918
  },
  "deletedChannels": {},
  "customCats": [
