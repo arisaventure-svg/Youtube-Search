@@ -297,10 +297,10 @@
    "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
    "duration": "57:30",
    "category": "Self-improvement",
-   "fav": false,
+   "fav": true,
    "note": "",
    "addedAt": "2026-08-01",
-   "ts": 1785551328337
+   "ts": 1785553710383
   }
  ],
  "channels": [
