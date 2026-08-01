@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Watch Later">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <title>Watch Later — Distraction Free</title>
 <style>
   :root {
@@ -64,6 +66,14 @@
   }
   input.search:focus { border-color: #4a5264; }
   input.search::placeholder { color: var(--muted); }
+  .searchwrap input.search { padding-right: 46px; }
+  .clearbtn {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; font-size: 13px; font-family: inherit; line-height: 1;
+  }
+  .clearbtn:hover { color: var(--text); border-color: #4a5264; }
 
   .hint { font-size: 12.5px; color: var(--muted); margin: 0 2px 18px; }
 
@@ -165,6 +175,8 @@
   .btn.primary:hover { filter: brightness(1.1); }
   .btn.saved { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
   .btn.danger:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.blockbtn { color: var(--muted); }
+  .btn.blockbtn:hover { color: var(--text); }
 
   /* channels view */
   .chanlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
@@ -254,10 +266,17 @@
     <div class="searchwrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
       <input class="search" id="q" type="text" autocomplete="off" autofocus>
+      <button class="clearbtn hidden" id="clearQ" onclick="clearSearch()" title="Clear (Esc)">✕</button>
     </div>
     <div class="scope">
       <button class="scopebtn active" id="scopeYt" onclick="setScope('youtube')">All of YouTube</button>
       <button class="scopebtn" id="scopeLib" onclick="setScope('library')">My library</button>
+      <span class="spacer"></span>
+      <select class="catselect" id="ytSort" onchange="setYtSort(this.value)" title="Sort results">
+        <option value="relevance">Best match</option>
+        <option value="date">Newest first</option>
+        <option value="views">Most viewed</option>
+      </select>
     </div>
     <div class="catchips hidden" id="catChips"></div>
     <p class="hint" id="searchHint"></p>
@@ -298,7 +317,7 @@
     </div>
     <div class="panel">
       <h3>Categories</h3>
-      <p>The four built-in categories are permanent; ones you add are listed here.</p>
+      <p>Delete any category (its videos move to Others), add new ones, and use ◀ ▶ to change the order they appear in My library. Only Others is permanent.</p>
       <div class="row" id="catManageList"></div>
       <div class="row"><button class="btn" onclick="promptNewCategory()">＋ Add category</button></div>
     </div>
@@ -334,13 +353,19 @@
       </div>
     </div>
     <div class="panel">
+      <h3>Hidden &amp; blocked</h3>
+      <p>Videos you've hidden and channels you've blocked never appear in search results, on any of your devices.</p>
+      <div class="row" id="blockList"></div>
+      <div class="row"><span class="note" id="hiddenCount"></span> <button class="btn" onclick="clearHidden()">Unhide all videos</button></div>
+    </div>
+    <div class="panel">
       <h3>Backup &amp; library</h3>
       <p id="libStats"></p>
       <div class="row">
         <button class="btn" onclick="exportJson()">Export JSON backup</button>
         <button class="btn danger" onclick="clearLibrary()">Clear all videos</button>
       </div>
-      <p class="note" style="margin-top:12px">App version 11 — favorites on top · tab switch clears search · one-click updates · in-app player · resume · sync · categories · favorites · notes</p>
+      <p class="note" style="margin-top:12px">App version 21 — ← → switches All of YouTube / My library · ✕ clear button + Esc / "/" shortcuts · hide & block · refreshed mirrors · search sort · reorder categories · notes on search · 🎧 audio mode · app icon · favorites on top · one-click updates · in-app player · resume · sync</p>
     </div>
   </section>
 </div>
@@ -349,9 +374,12 @@
 <div id="player" class="playerwrap hidden" onclick="if(event.target===this)closePlayer()">
   <div class="playerbox">
     <div class="playerframe"><iframe id="playerFrame" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <audio id="audioEl" class="hidden" controls style="width:100%;margin-top:10px"></audio>
+    <p class="note hidden" id="audioNote" style="margin-top:8px">Audio mode — keeps playing with the screen off, like a podcast. Control it from the lock screen.</p>
     <div class="playermeta">
       <div class="pt" id="playerTitle"></div>
       <button class="btn hidden" id="btnMirror" onclick="nextMirror()">Not playing? Try another mirror</button>
+      <button class="btn" id="btnAudio" onclick="playAudioMode()">🎧 Audio mode</button>
       <button class="btn" onclick="watchOnYt()">Watch on YouTube</button>
       <button class="btn" onclick="closePlayer()">Close ✕</button>
     </div>
@@ -393,8 +421,29 @@ let savedChannels = store.load('channels', []);
 const BASE_CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
 let customCats = store.load('customCats', []);        // [{name, ts}]
 let deletedCats = store.load('deletedCats', {});      // {name: ts}
-function allCategories() { return BASE_CATEGORIES.concat(customCats.map(c => c.name)); }
-function saveCats() { store.save('customCats', customCats); store.save('deletedCats', deletedCats); }
+let catOrder = store.load('catOrder', { list: [], ts: 0 });
+function allCategories() {
+  const base = BASE_CATEGORIES.filter(c => c === 'Others' || !deletedCats[c]);
+  const custom = customCats.map(c => c.name).filter(n => !base.includes(n));
+  let cats = base.concat(custom);
+  if (catOrder.list && catOrder.list.length) {
+    const pos = {};
+    catOrder.list.forEach((n, i) => { pos[n] = i; });
+    cats = cats.slice().sort((a, b) => (pos[a] !== undefined ? pos[a] : 999) - (pos[b] !== undefined ? pos[b] : 999));
+  }
+  return cats;
+}
+function saveCats() { store.save('customCats', customCats); store.save('deletedCats', deletedCats); store.save('catOrder', catOrder); }
+function moveCatByListIdx(i, dir) {
+  const arr = allCategories();
+  const j = i + dir;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  catOrder = { list: arr, ts: Date.now() };
+  saveCats(); scheduleSync();
+  renderManageCats();
+  if (scope === 'library') renderCatChips();
+}
 function addCategory(name) {
   name = (name || '').trim();
   if (!name) return null;
@@ -416,17 +465,19 @@ function promptNewCategory(forYtIdx) {
   if (scope === 'library') renderCatChips();
   if (currentView === 'library') renderManageCats();
 }
-function removeCategoryIdx(i) {
-  const c = customCats[i]; if (!c) return;
-  if (!confirm('Delete category "' + c.name + '"? Its videos move to Others.')) return;
-  customCats = customCats.filter((_, n) => n !== i);
-  deletedCats[c.name] = Date.now();
-  for (const v of videos) if (v.category === c.name) { v.category = 'Others'; v.ts = Date.now(); }
+function removeCategoryByName(name) {
+  if (name === 'Others') return;   // permanent home for uncategorized videos
+  if (!confirm('Delete category "' + name + '"? Its videos move to Others.')) return;
+  customCats = customCats.filter(c => c.name !== name);
+  deletedCats[name] = Date.now();
+  for (const v of videos) if (v.category === name) { v.category = 'Others'; v.ts = Date.now(); }
   store.save('videos', videos); saveCats(); scheduleSync();
-  if (catFilter === c.name) catFilter = 'All';
+  if (catFilter === name) catFilter = 'All';
   renderManageCats();
   if (scope === 'library') { renderCatChips(); renderSearch(); }
 }
+let manageCatList = [];
+function removeCatByListIdx(i) { if (manageCatList[i]) removeCategoryByName(manageCatList[i]); }
 let migrated = false;
 for (const v of videos) if (!v.category) { v.category = 'Others'; migrated = true; }
 if (migrated) store.save('videos', videos);
@@ -438,6 +489,16 @@ function saveTombstones() {
   store.save('deletedVideos', deletedVideos);
   store.save('deletedChannels', deletedChannels);
 }
+
+/* hide / block lists — {key: {ts, active}} so unblocking syncs too */
+let hiddenVideos = store.load('hiddenVideos', {});
+let blockedChannels = store.load('blockedChannels', {});
+function saveBlocks() {
+  store.save('hiddenVideos', hiddenVideos);
+  store.save('blockedChannels', blockedChannels);
+}
+function isHidden(id) { return !!(hiddenVideos[id] && hiddenVideos[id].active); }
+function isBlockedChannel(name) { return !!(blockedChannels[name] && blockedChannels[name].active); }
 
 /* ============ helpers ============ */
 const $ = id => document.getElementById(id);
@@ -471,6 +532,8 @@ function setScope(s) {
   $('scopeYt').classList.toggle('active', s === 'youtube');
   $('q').value = '';          // fresh start when switching tabs
   ytResults = [];
+  updateClearBtn();
+  $('ytSort').classList.toggle('hidden', s !== 'youtube');
   $('catChips').classList.toggle('hidden', s !== 'library');
   if (s === 'library') renderCatChips();
   $('searchResults').innerHTML = '';
@@ -530,14 +593,22 @@ function fetchTimeout(url, ms) {
   return fetch(url, { signal: c.signal }).finally(() => clearTimeout(t));
 }
 const PIPED_INSTANCES = ['https://pipedapi.kavin.rocks', 'https://api.piped.private.coffee', 'https://pipedapi.drgns.space'];
-const INVIDIOUS_INSTANCES = ['https://inv.nadeko.net', 'https://invidious.nerdvpn.de', 'https://yewtu.be'];
+const INVIDIOUS_INSTANCES = ['https://invidious.f5.si', 'https://invidious.tiekoetter.com', 'https://invidious.nerdvpn.de', 'https://inv.thepixora.com', 'https://yt.chocolatemoo53.com', 'https://inv.nadeko.net'];
 
+let ytSort = store.load('ytsort', 'relevance');
+function setYtSort(v) {
+  ytSort = v;
+  store.save('ytsort', v);
+  if ($('q').value.trim() || ytResults.length) runYtSearch();   // re-run current search with new sort
+}
 async function ytSearchFetch(q) {
   const key = store.load('apikey', '');
+  const apiOrder = ytSort === 'date' ? '&order=date' : ytSort === 'views' ? '&order=viewCount' : '';
+  const invSort = ytSort === 'date' ? '&sort_by=upload_date' : ytSort === 'views' ? '&sort_by=view_count' : '';
   // 1) direct API if the user added a key
   if (key) {
     try {
-      const r = await fetchTimeout('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&q=' + encodeURIComponent(q) + '&key=' + encodeURIComponent(key), 8000);
+      const r = await fetchTimeout('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&q=' + encodeURIComponent(q) + apiOrder + '&key=' + encodeURIComponent(key), 8000);
       const j = await r.json();
       if (j.items) return j.items.filter(it => it.id && it.id.videoId).map(it => ({
         id: it.id.videoId,
@@ -548,36 +619,54 @@ async function ytSearchFetch(q) {
       }));
     } catch (e) { /* fall through to mirrors */ }
   }
-  // 2) Piped mirrors
-  for (const base of PIPED_INSTANCES) {
-    try {
-      const r = await fetchTimeout(base + '/search?q=' + encodeURIComponent(q) + '&filter=videos', 6000);
-      const j = await r.json();
-      const items = (j.items || []).filter(it => it.url && it.url.includes('watch?v='));
-      if (items.length) return items.map(it => ({
-        id: it.url.split('watch?v=')[1].slice(0, 11),
-        title: it.title,
-        channel: it.uploaderName || 'Unknown channel',
-        channelUrl: it.uploaderUrl ? 'https://www.youtube.com' + it.uploaderUrl : '',
-        duration: it.duration > 0 ? fmtSecs(it.duration) : ''
-      }));
-    } catch (e) { /* try next */ }
+  // Mirror routes
+  const tryPiped = async () => {
+    for (const base of PIPED_INSTANCES) {
+      try {
+        const r = await fetchTimeout(base + '/search?q=' + encodeURIComponent(q) + '&filter=videos', 6000);
+        const j = await r.json();
+        const items = (j.items || []).filter(it => it.url && it.url.includes('watch?v='));
+        if (items.length) return items.map(it => ({
+          id: it.url.split('watch?v=')[1].slice(0, 11),
+          title: it.title,
+          channel: it.uploaderName || 'Unknown channel',
+          channelUrl: it.uploaderUrl ? 'https://www.youtube.com' + it.uploaderUrl : '',
+          duration: it.duration > 0 ? fmtSecs(it.duration) : '',
+          views: it.views || 0,
+          uploadedTs: it.uploaded || 0
+        }));
+      } catch (e) { /* try next */ }
+    }
+    return null;
+  };
+  const tryInvidious = async () => {
+    for (const base of INVIDIOUS_INSTANCES) {
+      try {
+        const r = await fetchTimeout(base + '/api/v1/search?q=' + encodeURIComponent(q) + '&type=video' + invSort, 6000);
+        const j = await r.json();
+        if (Array.isArray(j) && j.length) return j.filter(it => it.videoId).map(it => ({
+          id: it.videoId,
+          title: it.title,
+          channel: it.author || 'Unknown channel',
+          channelUrl: it.authorUrl ? 'https://www.youtube.com' + it.authorUrl : '',
+          duration: it.lengthSeconds > 0 ? fmtSecs(it.lengthSeconds) : '',
+          views: it.viewCount || 0,
+          uploadedTs: (it.published || 0) * 1000
+        }));
+      } catch (e) { /* try next */ }
+    }
+    return null;
+  };
+  if (ytSort === 'relevance') {
+    return (await tryPiped()) || (await tryInvidious());
   }
-  // 3) Invidious mirrors
-  for (const base of INVIDIOUS_INSTANCES) {
-    try {
-      const r = await fetchTimeout(base + '/api/v1/search?q=' + encodeURIComponent(q) + '&type=video', 6000);
-      const j = await r.json();
-      if (Array.isArray(j) && j.length) return j.filter(it => it.videoId).map(it => ({
-        id: it.videoId,
-        title: it.title,
-        channel: it.author || 'Unknown channel',
-        channelUrl: it.authorUrl ? 'https://www.youtube.com' + it.authorUrl : '',
-        duration: it.lengthSeconds > 0 ? fmtSecs(it.lengthSeconds) : ''
-      }));
-    } catch (e) { /* try next */ }
+  // sorted searches: Invidious sorts server-side; if it's down, sort Piped results ourselves
+  let res = await tryInvidious();
+  if (!res) {
+    res = await tryPiped();
+    if (res) res.sort((a, b) => ytSort === 'views' ? (b.views - a.views) : (b.uploadedTs - a.uploadedTs));
   }
-  return null;
+  return res;
 }
 
 async function runYtSearch() {
@@ -593,16 +682,18 @@ async function runYtSearch() {
     hint.textContent = 'Could not reach YouTube search right now. Check your connection, try again, or add an API key in Manage for a direct connection.';
     return;
   }
-  ytResults = found;
-  hint.textContent = found.length + (found.length === 1 ? ' result' : ' results') + ' from YouTube';
-  box.innerHTML = found.map((v, i) => ytCardHtml(v, i)).join('');
+  const visible = found.filter(v => !isHidden(v.id) && !isBlockedChannel(v.channel));
+  const hiddenN = found.length - visible.length;
+  ytResults = visible;
+  hint.textContent = visible.length + (visible.length === 1 ? ' result' : ' results') + ' from YouTube' + (hiddenN ? ' (' + hiddenN + ' hidden by you)' : '');
+  box.innerHTML = visible.map((v, i) => ytCardHtml(v, i)).join('');
 }
 
 function ytCardHtml(v, i) {
   const lib = videos.find(x => x.id === v.id);
   const chanSaved = isChannelSaved(v.channel);
   const saveBtn = lib
-    ? `<button class="btn saved" onclick="event.stopPropagation();">✓ Saved in ${esc(lib.category || 'Others')}</button>`
+    ? `<button class="btn saved" title="Click to unsave" onclick="event.stopPropagation();ytUnsave(${i})">✓ Saved in ${esc(lib.category || 'Others')} ✕</button>`
     : `<div class="catwrap">
         <button class="btn" onclick="event.stopPropagation();toggleCatMenu(${i})">＋ Save video…</button>
         <div class="catmenu hidden" id="catmenu-${i}">
@@ -610,6 +701,7 @@ function ytCardHtml(v, i) {
           <button onclick="event.stopPropagation();promptNewCategory(${i})">＋ New category…</button>
         </div>
       </div>`;
+  const noteOpen = notesOpen.has(v.id);
   return `<div class="card" onclick="ytPlay(${i})">
     <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}</div>
     <div class="meta">
@@ -617,10 +709,28 @@ function ytCardHtml(v, i) {
       <div class="vchan">${esc(v.channel)}</div>
       <div class="actions">
         ${saveBtn}
+        <button class="btn ${lib && lib.note ? 'saved' : ''}" onclick="event.stopPropagation();ytToggleNote(${i})">${lib && lib.note ? '🗒 Note •' : '🗒 Note'}</button>
         <button class="btn ${chanSaved ? 'saved' : ''}" onclick="event.stopPropagation();ytToggleChannel(${i})">${chanSaved ? '★ Channel saved' : '☆ Save channel'}</button>
+        <div class="catwrap">
+          <button class="btn blockbtn" title="Hide or block" onclick="event.stopPropagation();toggleBlockMenu(${i})">⊘</button>
+          <div class="catmenu hidden" id="blockmenu-${i}">
+            <button onclick="event.stopPropagation();ytHideVideo(${i})">Hide this video</button>
+            <button onclick="event.stopPropagation();ytBlockChannel(${i})">Block channel — see none of their videos</button>
+          </div>
+        </div>
       </div>
+      ${noteOpen ? `<textarea class="notebox" placeholder="Your notes for this video…" onclick="event.stopPropagation()" oninput="saveNote('${esc(v.id)}', this.value)">${esc(lib && lib.note || '')}</textarea>` : ''}
     </div>
   </div>`;
+}
+function ytToggleNote(i) {
+  const v = ytResults[i]; if (!v) return;
+  if (!videos.some(x => x.id === v.id)) {
+    addVideos([Object.assign({}, v, { category: 'Others' })]);
+    toast('Saved to Others so your note has a home');
+  }
+  if (notesOpen.has(v.id)) notesOpen.delete(v.id); else notesOpen.add(v.id);
+  $('searchResults').innerHTML = ytResults.map((x, n) => ytCardHtml(x, n)).join('');
 }
 function toggleCatMenu(i) {
   const menu = $('catmenu-' + i);
@@ -628,12 +738,67 @@ function toggleCatMenu(i) {
   document.querySelectorAll('.catmenu').forEach(m => m.classList.add('hidden'));
   if (wasHidden) menu.classList.remove('hidden');
 }
+function toggleBlockMenu(i) {
+  const menu = $('blockmenu-' + i);
+  const wasHidden = menu.classList.contains('hidden');
+  document.querySelectorAll('.catmenu').forEach(m => m.classList.add('hidden'));
+  if (wasHidden) menu.classList.remove('hidden');
+}
+function rerenderYt() {
+  $('searchResults').innerHTML = ytResults.map((x, n) => ytCardHtml(x, n)).join('');
+}
+function ytHideVideo(i) {
+  const v = ytResults[i]; if (!v) return;
+  hiddenVideos[v.id] = { ts: Date.now(), active: true };
+  saveBlocks(); scheduleSync();
+  ytResults = ytResults.filter(x => x.id !== v.id);
+  rerenderYt();
+  toast('Hidden — it won’t show in searches again');
+}
+function ytBlockChannel(i) {
+  const v = ytResults[i]; if (!v) return;
+  blockedChannels[v.channel] = { ts: Date.now(), active: true };
+  saveBlocks(); scheduleSync();
+  ytResults = ytResults.filter(x => x.channel !== v.channel);
+  rerenderYt();
+  toast('Blocked ' + v.channel);
+}
+function unblockChannel(name) {
+  blockedChannels[name] = { ts: Date.now(), active: false };
+  saveBlocks(); scheduleSync();
+  renderBlocked();
+  toast('Unblocked ' + name);
+}
+function clearHidden() {
+  for (const id of Object.keys(hiddenVideos)) hiddenVideos[id] = { ts: Date.now(), active: false };
+  saveBlocks(); scheduleSync();
+  renderBlocked();
+  toast('All hidden videos can appear again');
+}
+function renderBlocked() {
+  const el = $('blockList');
+  if (!el) return;
+  const names = Object.keys(blockedChannels).filter(isBlockedChannel).sort();
+  el.innerHTML = names.length
+    ? names.map(n => `<span class="badge" style="padding:6px 10px">${esc(n)} <button class="chip" style="color:var(--accent)" onclick="unblockChannel('${esc(n).replace(/'/g, "\\'")}')" title="Unblock">✕</button></span>`).join('')
+    : '<span class="note">No blocked channels.</span>';
+  const hn = Object.keys(hiddenVideos).filter(isHidden).length;
+  $('hiddenCount').textContent = hn + ' hidden video(s).';
+}
 document.addEventListener('click', () => document.querySelectorAll('.catmenu').forEach(m => m.classList.add('hidden')));
 function ytPlay(i) {
   const v = ytResults[i]; if (!v) return;
   openPlayer(v.id, v.title);
 }
 function ytSaveVideoCat(i, ci) { ytSaveVideo(i, allCategories()[ci]); }
+function ytUnsave(i) {
+  const v = ytResults[i]; if (!v) return;
+  videos = videos.filter(x => x.id !== v.id);
+  deletedVideos[v.id] = Date.now();
+  store.save('videos', videos); saveTombstones(); scheduleSync();
+  toast('Removed from your library');
+  $('searchResults').innerHTML = ytResults.map((x, n) => ytCardHtml(x, n)).join('');
+}
 function ytSaveVideo(i, cat) {
   const v = ytResults[i]; if (!v) return;
   const added = addVideos([Object.assign({}, v, { category: cat || 'Others' })]);
@@ -760,6 +925,66 @@ function watchOnYt() {
   if (!currentPlayId) return;
   window.open('https://www.youtube.com/watch?v=' + currentPlayId, '_blank');
 }
+
+/* ---- audio mode: podcast-style background playback via mirror streams ---- */
+const AUDIO_INSTANCES = ['https://invidious.f5.si', 'https://invidious.tiekoetter.com', 'https://invidious.nerdvpn.de', 'https://inv.thepixora.com', 'https://yt.chocolatemoo53.com', 'https://inv.nadeko.net'];
+let audioTry = 0;
+function currentVideoMeta(id) {
+  return videos.find(v => v.id === id) || ytResults.find(v => v.id === id) || { title: '', channel: '' };
+}
+function playAudioMode() {
+  if (!currentPlayId) return;
+  audioTry = 0;
+  startAudio();
+}
+function startAudio() {
+  const a = $('audioEl');
+  $('playerFrame').src = 'about:blank';
+  a.classList.remove('hidden');
+  $('audioNote').classList.remove('hidden');
+  a.src = AUDIO_INSTANCES[audioTry] + '/latest_version?id=' + currentPlayId + '&itag=140&local=true';
+  const startAt = resumeAt(currentPlayId);
+  a.onloadedmetadata = () => { if (startAt) a.currentTime = startAt; };
+  a.play().catch(() => {});
+  const meta = currentVideoMeta(currentPlayId);
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: meta.title || 'Watch Later',
+        artist: meta.channel || '',
+        artwork: [{ src: thumbUrl(currentPlayId), sizes: '320x180', type: 'image/jpeg' }]
+      });
+      navigator.mediaSession.setActionHandler('play', () => a.play());
+      navigator.mediaSession.setActionHandler('pause', () => a.pause());
+      navigator.mediaSession.setActionHandler('seekbackward', () => { a.currentTime = Math.max(0, a.currentTime - 15); });
+      navigator.mediaSession.setActionHandler('seekforward', () => { a.currentTime = a.currentTime + 15; });
+    } catch (e) { /* older browsers */ }
+  }
+}
+(function wireAudio() {
+  const a = document.getElementById('audioEl');
+  a.addEventListener('error', () => {
+    if (!currentPlayId || a.classList.contains('hidden')) return;
+    if (audioTry < AUDIO_INSTANCES.length - 1) {
+      audioTry++;
+      toast('Trying another audio server (' + (audioTry + 1) + '/' + AUDIO_INSTANCES.length + ')…');
+      startAudio();
+    } else {
+      $('audioNote').textContent = 'Audio servers are unavailable right now — try again later, or use the lock-screen play button with the normal player.';
+    }
+  });
+  a.addEventListener('timeupdate', () => {
+    if (currentPlayId && !a.paused) saveProgress(currentPlayId, a.currentTime);
+  });
+})();
+function stopAudio() {
+  const a = $('audioEl');
+  a.pause();
+  a.removeAttribute('src'); a.load();
+  a.classList.add('hidden');
+  $('audioNote').classList.add('hidden');
+  $('audioNote').textContent = 'Audio mode — keeps playing with the screen off, like a podcast. Control it from the lock screen.';
+}
 function nextMirror() {
   if (!currentPlayId) return;
   mirrorIdx = (mirrorIdx + 1) % EMBED_MIRRORS.length;
@@ -790,7 +1015,9 @@ window.addEventListener('message', (e) => {
 
 function openPlayer(id, title) {
   currentPlayId = id;
+  stopAudio();
   $('q').value = '';   // clear the search bar once a video is picked
+  updateClearBtn();
   const start = resumeAt(id);
   // Hosted over https, the embed player works (it gets a referrer) —
   // play inside the app: no YouTube page at all, on Mac and iPhone alike.
@@ -813,13 +1040,47 @@ function playVideo(id) {
   openPlayer(id, v ? v.title : '');
 }
 function closePlayer() {
+  stopAudio();
   $('playerFrame').src = 'about:blank';
   $('player').classList.add('hidden');
   store.save('progress', progress);
   scheduleSync();                       // push watch position across devices
   if (scope === 'library') renderSearch();  // refresh progress bars
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+function clearSearch() {
+  $('q').value = '';
+  ytResults = [];
+  $('searchResults').innerHTML = '';
+  updateClearBtn();
+  renderSearch();
+  $('q').focus();
+}
+function updateClearBtn() {
+  $('clearQ').classList.toggle('hidden', !$('q').value);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (!$('player').classList.contains('hidden')) closePlayer();
+    else clearSearch();                                   // Esc clears the search bar
+  }
+  // "/" jumps to the search bar from anywhere
+  if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    setView('search');
+    $('q').focus();
+  }
+  // ← → switch between "All of YouTube" and "My library"
+  if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && currentView === 'search') {
+    const el = document.activeElement;
+    if (['TEXTAREA', 'SELECT'].includes(el.tagName)) return;              // never steal from note boxes / dropdowns
+    if (el.tagName === 'INPUT' && el.value) return;                       // typing? arrows move the cursor as usual
+    const want = e.key === 'ArrowRight' ? 'library' : 'youtube';          // matches the tab order on screen
+    if (want !== scope) {
+      e.preventDefault();
+      setScope(want);
+    }
+  }
+});
 
 /* ============ library management ============ */
 function removeVideo(id) {
@@ -837,13 +1098,19 @@ function clearLibrary() {
 function renderLibStats() {
   $('libStats').textContent = videos.length + ' videos, ' + savedChannels.length + ' saved channels. Data lives in this browser — export a backup if you want a portable copy.';
   renderManageCats();
+  renderBlocked();
 }
 function renderManageCats() {
   const el = $('catManageList');
   if (!el) return;
-  el.innerHTML = customCats.length
-    ? customCats.map((c, i) => `<span class="badge" style="padding:6px 10px">${esc(c.name)} <button class="chip" style="color:var(--accent)" onclick="removeCategoryIdx(${i})" title="Delete">✕</button></span>`).join('')
-    : '<span class="note">No custom categories yet.</span>';
+  manageCatList = allCategories();
+  el.innerHTML = manageCatList.map((name, i) =>
+    `<span class="badge" style="padding:6px 10px;display:inline-flex;align-items:center;gap:7px">
+      <button class="chip" onclick="moveCatByListIdx(${i}, -1)" title="Move up in the list" ${i === 0 ? 'disabled style="opacity:.3"' : ''}>◀</button>
+      ${esc(name)}${name === 'Others' ? ' <span style="opacity:.6">(permanent)</span>' : ` <button class="chip" style="color:var(--accent)" onclick="removeCategoryByName('${esc(name).replace(/'/g, "\\'")}')" title="Delete">✕</button>`}
+      <button class="chip" onclick="moveCatByListIdx(${i}, 1)" title="Move down in the list" ${i === manageCatList.length - 1 ? 'disabled style="opacity:.3"' : ''}>▶</button>
+    </span>`
+  ).join('');
 }
 function addVideos(list) {
   const have = new Set(videos.map(v => v.id));
@@ -1008,12 +1275,21 @@ function mergeRemote(remote) {
     if (!cur || (c.ts || 0) >= (cur.ts || 0)) byCat[c.name] = c;
   }
   customCats = Object.values(byCat).filter(c => !(deletedCats[c.name] && deletedCats[c.name] >= (c.ts || 0)));
+  if (remote.catOrder && (remote.catOrder.ts || 0) > (catOrder.ts || 0)) catOrder = remote.catOrder;
   saveCats();
   // watch positions: newer timestamp wins per video
   for (const [id, p] of Object.entries(remote.progress || {})) {
     if (!progress[id] || (p.ts || 0) > (progress[id].ts || 0)) progress[id] = p;
   }
   store.save('progress', progress);
+  // hide/block lists: newer entry wins per key (works for unblocking too)
+  for (const [id, h] of Object.entries(remote.hiddenVideos || {})) {
+    if (!hiddenVideos[id] || (h.ts || 0) > (hiddenVideos[id].ts || 0)) hiddenVideos[id] = h;
+  }
+  for (const [n, bl] of Object.entries(remote.blockedChannels || {})) {
+    if (!blockedChannels[n] || (bl.ts || 0) > (blockedChannels[n].ts || 0)) blockedChannels[n] = bl;
+  }
+  saveBlocks();
   // videos: union by id, newer record wins
   const byId = {};
   for (const v of (remote.videos || []).concat(videos)) {
@@ -1036,7 +1312,7 @@ function mergeRemote(remote) {
   saveTombstones();
 }
 function syncPayload() {
-  return { videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, progress };
+  return { videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, catOrder, progress, hiddenVideos, blockedChannels };
 }
 async function syncNow(manual) {
   if (!syncCfg.repo || !syncCfg.token) { if (manual) setSyncStatus('Set repository and token first.'); return; }
@@ -1046,7 +1322,7 @@ async function syncNow(manual) {
     if (remote) mergeRemote(remote.data);
     const payload = syncPayload();
     const str = JSON.stringify(payload);
-    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {}, customCats: remote.data.customCats || [], deletedCats: remote.data.deletedCats || {}, progress: remote.data.progress || {} }) : null;
+    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {}, customCats: remote.data.customCats || [], deletedCats: remote.data.deletedCats || {}, catOrder: remote.data.catOrder || { list: [], ts: 0 }, progress: remote.data.progress || {}, hiddenVideos: remote.data.hiddenVideos || {}, blockedChannels: remote.data.blockedChannels || {} }) : null;
     if (str !== remoteStr) { await ghPut(payload, remote ? remote.sha : undefined); }
     lastPushedStr = str;
     setSyncStatus('Synced ✓ ' + new Date().toLocaleTimeString());
@@ -1102,7 +1378,7 @@ function exportJson() {
 }
 
 /* ============ init ============ */
-$('q').addEventListener('input', () => { if (scope === 'library') renderSearch(); });
+$('q').addEventListener('input', () => { updateClearBtn(); if (scope === 'library') renderSearch(); });
 $('q').addEventListener('keydown', e => { if (e.key === 'Enter' && scope === 'youtube') runYtSearch(); });
 $('playerFrame').addEventListener('load', () => {
   try {
@@ -1110,6 +1386,7 @@ $('playerFrame').addEventListener('load', () => {
   } catch (e) { /* about:blank etc. */ }
 });
 $('apiKeyBox').value = store.load('apikey', '');
+$('ytSort').value = ytSort;
 $('syncRepoBox').value = syncCfg.repo || guessRepo();
 $('syncTokenBox').value = syncCfg.token || '';
 setScope('youtube');
