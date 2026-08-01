@@ -273,10 +273,10 @@
    "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
    "duration": "18:03",
    "category": "Workouts",
-   "fav": false,
+   "fav": true,
    "note": "",
    "addedAt": "2026-08-01",
-   "ts": 1785548042053
+   "ts": 1785548053735
   }
  ],
  "channels": [
