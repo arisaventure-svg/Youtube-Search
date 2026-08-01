@@ -232,18 +232,6 @@
    "ts": 1785478191152
   },
   {
-   "id": "x3OA9Q6u9EU",
-   "title": "How to Get Things Done, Stay Focused, and Be More Productive",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/@melrobbins",
-   "duration": "",
-   "category": "Self-improvement",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-07-31",
-   "ts": 1785478194736
-  },
-  {
    "id": "ATdRtfp2-dE",
    "title": "I’m begging you to manage your time",
    "channel": "PCFGSTUDY",
@@ -301,6 +289,18 @@
    "note": "",
    "addedAt": "2026-08-01",
    "ts": 1785553710383
+  },
+  {
+   "id": "x3OA9Q6u9EU",
+   "title": "How to Get Things Done, Stay Focused, and Be More Productive",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/@melrobbins",
+   "duration": "",
+   "category": "Self-improvement",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-07-31",
+   "ts": 1785553717133
   }
  ],
  "channels": [
