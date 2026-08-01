@@ -232,17 +232,6 @@
    "ts": 1785478191152
   },
   {
-   "id": "ATdRtfp2-dE",
-   "title": "I’m begging you to manage your time",
-   "channel": "PCFGSTUDY",
-   "channelUrl": "https://www.youtube.com/channel/UClBDnzhwm1fR-LoTKu2RuWQ",
-   "duration": "14:00",
-   "category": "Self-improvement",
-   "addedAt": "2026-07-30",
-   "ts": 1785480505701,
-   "fav": false
-  },
-  {
    "id": "L_Y9xspaU7I",
    "title": "FULL UPPER BODY WORKOUT (15 min At Home with Dumbbells)",
    "channel": "MadFit",
@@ -334,7 +323,8 @@
  ],
  "deletedVideos": {
   "2Z9g-AZinUc": 1785218557048,
-  "L0Ji6oTAovo": 1785548020918
+  "L0Ji6oTAovo": 1785548020918,
+  "ATdRtfp2-dE": 1785554504602
  },
  "deletedChannels": {},
  "customCats": [
