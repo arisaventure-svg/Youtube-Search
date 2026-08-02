@@ -350,8 +350,17 @@
  ],
  "deletedCats": {},
  "catOrder": {
-  "list": [],
-  "ts": 0
+  "list": [
+   "Self-improvement",
+   "Workouts",
+   "Music",
+   "Others",
+   "Food",
+   "Warmup",
+   "Gardening",
+   "Cool Down"
+  ],
+  "ts": 1785632718906
  },
  "progress": {
   "x3OA9Q6u9EU": {
