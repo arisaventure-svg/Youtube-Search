@@ -338,6 +338,10 @@
   }
  ],
  "deletedCats": {},
+ "catOrder": {
+  "list": [],
+  "ts": 0
+ },
  "progress": {
   "x3OA9Q6u9EU": {
    "t": 3090,
@@ -366,6 +370,12 @@
   "sDmzLZnghcg": {
    "t": 12,
    "ts": 1785553666563
+  },
+  "pdtf6bnUpzk": {
+   "t": 16,
+   "ts": 1785629685988
   }
- }
+ },
+ "hiddenVideos": {},
+ "blockedChannels": {}
 }
