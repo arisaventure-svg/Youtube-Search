@@ -377,6 +377,18 @@
    "note": "",
    "addedAt": "2026-08-03",
    "ts": 1785743607040
+  },
+  {
+   "id": "A9Xq3FGjpZA",
+   "title": "Explaining Basic Financial Concepts YOU Should Understand",
+   "channel": "EverythingProfessor",
+   "channelUrl": "https://www.youtube.com/channel/UCbrSe4uBIeqJweOYnJAOsrw",
+   "duration": "12:14",
+   "category": "Finance",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1785747061407
   }
  ],
  "channels": [
@@ -422,6 +434,10 @@
   {
    "name": "IVF",
    "ts": 1785743605185
+  },
+  {
+   "name": "Finance",
+   "ts": 1785747061406
   }
  ],
  "deletedCats": {},
