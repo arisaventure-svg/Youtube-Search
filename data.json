@@ -235,18 +235,6 @@
    "ts": 1785549091306
   },
   {
-   "id": "sDmzLZnghcg",
-   "title": "Goal Setting Toolkit: How to Set the Right Goals For You AND Achieve Them | The Mel Robbins Podcast",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "57:30",
-   "category": "Self-improvement",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-01",
-   "ts": 1785553710383
-  },
-  {
    "id": "x3OA9Q6u9EU",
    "title": "How to Get Things Done, Stay Focused, and Be More Productive",
    "channel": "Mel Robbins",
@@ -336,11 +324,23 @@
    "channel": "Mel Robbins",
    "channelUrl": "https://www.youtube.com/@melrobbins",
    "duration": "",
-   "category": "Others",
+   "category": "Self-improvement",
    "fav": false,
    "note": "",
    "addedAt": "2026-08-03",
-   "ts": 1785734162771
+   "ts": 1785734204635
+  },
+  {
+   "id": "sDmzLZnghcg",
+   "title": "Goal Setting Toolkit: How to Set the Right Goals For You AND Achieve Them | The Mel Robbins Podcast",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "57:30",
+   "category": "Self-improvement",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-01",
+   "ts": 1785734206812
   }
  ],
  "channels": [
