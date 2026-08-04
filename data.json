@@ -403,30 +403,6 @@
    "ts": 1785747149948
   },
   {
-   "id": "Ai4iNmW2A1c",
-   "title": "The Best Financial Advice You’ll Ever Hear",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:19:16",
-   "category": "Finance",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-03",
-   "ts": 1785747170014
-  },
-  {
-   "id": "uysZfSEmeRE",
-   "title": "5 Money Rules That Will Change Your Life & Create Financial Freedom",
-   "channel": "Mel Robbins and David Bach",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:09:52",
-   "category": "Finance",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-03",
-   "ts": 1785747185165
-  },
-  {
    "id": "ZF8YiXKYUBg",
    "title": "Lewis Howes: You're 69 Minutes Away From NEVER Being Broke Again",
    "channel": "Jay Shetty Podcast",
@@ -545,6 +521,30 @@
    "note": "",
    "addedAt": "2026-08-03",
    "ts": 1785826491742
+  },
+  {
+   "id": "uysZfSEmeRE",
+   "title": "5 Money Rules That Will Change Your Life & Create Financial Freedom",
+   "channel": "Mel Robbins and David Bach",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:09:52",
+   "category": "Finance",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1785826501138
+  },
+  {
+   "id": "Ai4iNmW2A1c",
+   "title": "The Best Financial Advice You’ll Ever Hear",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:19:16",
+   "category": "Finance",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1785826502888
   }
  ],
  "channels": [
