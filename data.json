@@ -307,18 +307,6 @@
    "ts": 1785642311823
   },
   {
-   "id": "e86ie1xLlnE",
-   "title": "How to Set & Achieve Goals: 2 Surprising Science-Backed Steps You Must Follow",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "55:30",
-   "category": "Self-improvement",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-03",
-   "ts": 1785720796492
-  },
-  {
    "id": "sDmzLZnghcg",
    "title": "Goal Setting Toolkit: How to Set the Right Goals For You AND Achieve Them | The Mel Robbins Podcast",
    "channel": "Mel Robbins",
@@ -557,6 +545,18 @@
    "note": "",
    "addedAt": "2026-08-04",
    "ts": 1785851904167
+  },
+  {
+   "id": "e86ie1xLlnE",
+   "title": "How to Set & Achieve Goals: 2 Surprising Science-Backed Steps You Must Follow",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "55:30",
+   "category": "Self-improvement",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1785851909052
   }
  ],
  "channels": [
