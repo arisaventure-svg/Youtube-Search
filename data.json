@@ -553,10 +553,10 @@
    "channelUrl": "https://www.youtube.com/@melrobbins",
    "duration": "",
    "category": "Self-improvement",
-   "fav": false,
+   "fav": true,
    "note": "",
    "addedAt": "2026-08-04",
-   "ts": 1785851899806
+   "ts": 1785851904167
   }
  ],
  "channels": [
