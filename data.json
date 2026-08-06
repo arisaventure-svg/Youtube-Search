@@ -642,6 +642,18 @@
    "note": "",
    "addedAt": "2026-08-06",
    "ts": 1785998772222
+  },
+  {
+   "id": "MPU9HoVhSp8",
+   "title": "15 THINGS I WISH I KNEW BEFORE HAVING A BABY | Advice for New & Expecting Moms",
+   "channel": "HealthNut Nutrition",
+   "channelUrl": "https://www.youtube.com/channel/UCZB32syI0FFtThd6xkPTRrg",
+   "duration": "26:28",
+   "category": "Pregnancy",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-06",
+   "ts": 1786002967097
   }
  ],
  "channels": [
@@ -691,6 +703,10 @@
   {
    "name": "Finance",
    "ts": 1785747061406
+  },
+  {
+   "name": "Pregnancy",
+   "ts": 1786002967095
   }
  ],
  "deletedCats": {},
