@@ -886,11 +886,6 @@
  ],
  "channels": [
   {
-   "name": "Mel Robbins",
-   "url": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "ts": 1785292928005
-  },
-  {
    "name": "MadFit",
    "url": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
    "ts": 1785287616993
@@ -906,7 +901,9 @@
   "L0Ji6oTAovo": 1785548020918,
   "ATdRtfp2-dE": 1785554504602
  },
- "deletedChannels": {},
+ "deletedChannels": {
+  "Mel Robbins": 1786084909142
+ },
  "customCats": [
   {
    "name": "Food",
