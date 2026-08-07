@@ -925,6 +925,11 @@
    "ts": 1786002950914
   }
  },
- "hiddenVideos": {},
+ "hiddenVideos": {
+  "QLSy9y4Ku8w": {
+   "ts": 1786065129041,
+   "active": true
+  }
+ },
  "blockedChannels": {}
 }
