@@ -94,6 +94,8 @@
   }
   .catchip:hover { color: var(--text); }
   .catchip.active { background: var(--surface2); border-color: #4a5264; color: var(--text); }
+  .catchip[draggable="true"] { cursor: grab; }
+  .catchip.dragover { border-color: var(--accent); }
 
   /* save-to-category popover */
   .catwrap { position: relative; display: inline-block; }
@@ -279,6 +281,7 @@
       </select>
     </div>
     <div class="catchips hidden" id="catChips"></div>
+    <div class="catchips hidden" id="subChips" style="margin-top:-4px"></div>
     <p class="hint" id="searchHint"></p>
     <div id="searchResults" class="results"></div>
     <div id="searchEmpty" class="empty"></div>
@@ -302,6 +305,8 @@
       <textarea class="paste" id="pasteBox" placeholder="https://www.youtube.com/watch?v=…&#10;https://youtu.be/…"></textarea>
       <div class="row">
         <button class="btn primary" onclick="importPasted()">Add videos</button>
+        <span class="note">into</span>
+        <select class="catselect" id="pasteCat"></select>
         <span class="note" id="pasteStatus"></span>
       </div>
     </div>
@@ -344,6 +349,11 @@
       </div>
     </div>
     <div class="panel">
+      <h3>YouTube account (Premium / no ads)</h3>
+      <p>The player uses your browser's YouTube sign-in. <b>Mac:</b> sign in to youtube.com in this browser once and Premium ad-free playback applies inside the app automatically. <b>iPhone:</b> Apple keeps home-screen apps signed out of embedded players, so Premium can't reach the player there — 🎧 Audio mode has no ads by nature, and "Watch on YouTube" opens the YouTube app with your Premium.</p>
+      <div class="row"><button class="btn" onclick="window.open('https://www.youtube.com','_blank')">Open YouTube to sign in</button></div>
+    </div>
+    <div class="panel">
       <h3>App updates</h3>
       <p>Got a new version file? Install it from here — the app uploads it to your repository itself (uses your sync token). No GitHub website needed.</p>
       <div class="row">
@@ -365,7 +375,7 @@
         <button class="btn" onclick="exportJson()">Export JSON backup</button>
         <button class="btn danger" onclick="clearLibrary()">Clear all videos</button>
       </div>
-      <p class="note" style="margin-top:12px">App version 21 — ← → switches All of YouTube / My library · ✕ clear button + Esc / "/" shortcuts · hide & block · refreshed mirrors · search sort · reorder categories · notes on search · 🎧 audio mode · app icon · favorites on top · one-click updates · in-app player · resume · sync</p>
+      <p class="note" style="margin-top:12px">App version 22 — subcategories · drag-and-drop category order · category picker for pasted links · YouTube sign-in panel · ← → tab switch · hide & block · search sort · 🎧 audio mode · one-click updates · in-app player · resume · sync</p>
     </div>
   </section>
 </div>
@@ -422,6 +432,9 @@ const BASE_CATEGORIES = ['Workouts', 'Self-improvement', 'Music', 'Others'];
 let customCats = store.load('customCats', []);        // [{name, ts}]
 let deletedCats = store.load('deletedCats', {});      // {name: ts}
 let catOrder = store.load('catOrder', { list: [], ts: 0 });
+let subCats = store.load('subCats', {});   // {category: {list:[names], ts}}
+function subsOf(cat) { return (subCats[cat] && subCats[cat].list) || []; }
+function saveSubs() { store.save('subCats', subCats); }
 function allCategories() {
   const base = BASE_CATEGORIES.filter(c => c === 'Others' || !deletedCats[c]);
   const custom = customCats.map(c => c.name).filter(n => !base.includes(n));
@@ -470,7 +483,9 @@ function removeCategoryByName(name) {
   if (!confirm('Delete category "' + name + '"? Its videos move to Others.')) return;
   customCats = customCats.filter(c => c.name !== name);
   deletedCats[name] = Date.now();
-  for (const v of videos) if (v.category === name) { v.category = 'Others'; v.ts = Date.now(); }
+  subCats[name] = { list: [], ts: Date.now() };
+  saveSubs();
+  for (const v of videos) if (v.category === name) { v.category = 'Others'; v.sub = ''; v.ts = Date.now(); }
   store.save('videos', videos); saveCats(); scheduleSync();
   if (catFilter === name) catFilter = 'All';
   renderManageCats();
@@ -541,19 +556,108 @@ function setScope(s) {
   $('q').focus();
 }
 let chipKeys = [];
+let subFilter = 'All';
+let dragCatIdx = null, dragSubIdx = null;
 function renderCatChips() {
   const favCount = videos.filter(v => v.fav).length;
-  chipKeys = ['All', '__fav'].concat(allCategories());
+  const cats = allCategories();
+  chipKeys = ['All', '__fav'].concat(cats);
   const labels = { 'All': 'All', '__fav': '★ Favorites (' + favCount + ')' };
   $('catChips').innerHTML = chipKeys.map((k, i) => {
     const label = labels[k] || (esc(k) + ' (' + videos.filter(v => v.category === k).length + ')');
-    return `<button class="catchip ${catFilter === k ? 'active' : ''}" onclick="setCatFilterIdx(${i})">${label}</button>`;
+    const ci = cats.indexOf(k);
+    const drag = ci >= 0
+      ? ` draggable="true" ondragstart="catDragStart(${ci})" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="catDrop(event,${ci})"`
+      : '';
+    return `<button class="catchip ${catFilter === k ? 'active' : ''}"${drag} onclick="setCatFilterIdx(${i})">${label}</button>`;
   }).join('') + `<button class="catchip" onclick="promptNewCategory()" title="Add a category">＋</button>`;
+  renderSubChips();
 }
 function setCatFilterIdx(i) {
   catFilter = chipKeys[i] || 'All';
+  subFilter = 'All';
   renderCatChips();
   renderSearch();
+}
+function catDragStart(ci) { dragCatIdx = ci; }
+function catDrop(e, ci) {
+  e.preventDefault();
+  if (dragCatIdx === null || dragCatIdx === ci) { dragCatIdx = null; renderCatChips(); return; }
+  const arr = allCategories();
+  const [moved] = arr.splice(dragCatIdx, 1);
+  arr.splice(ci, 0, moved);
+  catOrder = { list: arr, ts: Date.now() };
+  dragCatIdx = null;
+  saveCats(); scheduleSync();
+  renderCatChips();
+  if (currentView === 'library') renderManageCats();
+}
+
+/* ---- subcategories ---- */
+function renderSubChips() {
+  const el = $('subChips');
+  if (!el) return;
+  const cat = catFilter;
+  const isRealCat = scope === 'library' && cat !== 'All' && cat !== '__fav' && allCategories().includes(cat);
+  if (!isRealCat) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+  el.classList.remove('hidden');
+  const list = subsOf(cat);
+  el.innerHTML =
+    `<button class="catchip ${subFilter === 'All' ? 'active' : ''}" onclick="setSubFilterIdx(-1)">All</button>` +
+    list.map((s, i) =>
+      `<button class="catchip ${subFilter === s ? 'active' : ''}" draggable="true" ondragstart="subDragStart(${i})" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="subDrop(event,${i})" onclick="setSubFilterIdx(${i})">${esc(s)} (${videos.filter(v => v.category === cat && v.sub === s).length}) <span class="chip" style="color:var(--accent)" onclick="event.stopPropagation();removeSubCat(${i})" title="Delete subcategory">✕</span></button>`
+    ).join('') +
+    `<button class="catchip" onclick="addSubCatPrompt()" title="Add a subcategory">＋ sub</button>`;
+}
+function setSubFilterIdx(i) {
+  subFilter = i < 0 ? 'All' : (subsOf(catFilter)[i] || 'All');
+  renderSubChips();
+  renderSearch();
+}
+function addSubCatPrompt() {
+  const cat = catFilter;
+  const name = prompt('New subcategory under "' + cat + '":');
+  if (name === null) return;
+  const n = name.trim();
+  if (!n || n.length > 24) { if (n) toast('Name too long'); return; }
+  const list = subsOf(cat);
+  if (list.some(s => s.toLowerCase() === n.toLowerCase())) { toast('That subcategory already exists'); return; }
+  subCats[cat] = { list: list.concat(n), ts: Date.now() };
+  saveSubs(); scheduleSync();
+  renderSubChips();
+  toast('Subcategory: ' + n);
+}
+function removeSubCat(i) {
+  const cat = catFilter;
+  const list = subsOf(cat);
+  const name = list[i]; if (!name) return;
+  if (!confirm('Delete subcategory "' + name + '"? Its videos stay in ' + cat + '.')) return;
+  subCats[cat] = { list: list.filter((_, n) => n !== i), ts: Date.now() };
+  for (const v of videos) if (v.category === cat && v.sub === name) { v.sub = ''; v.ts = Date.now(); }
+  store.save('videos', videos); saveSubs(); scheduleSync();
+  if (subFilter === name) subFilter = 'All';
+  renderSubChips(); renderSearch();
+}
+function subDragStart(i) { dragSubIdx = i; }
+function subDrop(e, i) {
+  e.preventDefault();
+  const cat = catFilter;
+  if (dragSubIdx === null || dragSubIdx === i) { dragSubIdx = null; renderSubChips(); return; }
+  const list = subsOf(cat).slice();
+  const [moved] = list.splice(dragSubIdx, 1);
+  list.splice(i, 0, moved);
+  subCats[cat] = { list, ts: Date.now() };
+  dragSubIdx = null;
+  saveSubs(); scheduleSync();
+  renderSubChips();
+}
+function setVideoSub(id, sub) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  v.sub = sub;
+  v.ts = Date.now();
+  store.save('videos', videos); scheduleSync();
+  if (scope === 'library') { renderSubChips(); renderSearch(); }
 }
 
 function renderSearch() {
@@ -561,9 +665,12 @@ function renderSearch() {
   const q = $('q').value.trim().toLowerCase();
   const box = $('searchResults'), empty = $('searchEmpty'), hint = $('searchHint');
   box.innerHTML = '';
-  const pool = catFilter === 'All' ? videos
+  let pool = catFilter === 'All' ? videos
     : catFilter === '__fav' ? videos.filter(v => v.fav)
     : videos.filter(v => v.category === catFilter);
+  if (catFilter !== 'All' && catFilter !== '__fav' && subFilter !== 'All') {
+    pool = pool.filter(v => v.sub === subFilter);
+  }
   if (!q && catFilter === 'All') {
     hint.textContent = '';
     return;
@@ -841,6 +948,7 @@ function cardHtml(v) {
       <div class="actions">
         <button class="btn ${v.fav ? 'saved' : ''}" title="Favorite" onclick="event.stopPropagation();toggleFav('${esc(v.id)}')">${v.fav ? '★' : '☆'}</button>
         <select class="catselect" onclick="event.stopPropagation()" onchange="setVideoCategory('${esc(v.id)}', this.value)">${catOptions}</select>
+        ${subsOf(v.category).length ? `<select class="catselect" title="Subcategory" onclick="event.stopPropagation()" onchange="setVideoSub('${esc(v.id)}', this.value)"><option value="" ${!v.sub ? 'selected' : ''}>— sub —</option>${subsOf(v.category).map(s => `<option ${v.sub === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>` : ''}
         <button class="btn ${v.note ? 'saved' : ''}" onclick="event.stopPropagation();toggleNote('${esc(v.id)}')">${v.note ? '🗒 Note •' : '🗒 Note'}</button>
         <button class="btn ${saved ? 'saved' : ''}" onclick="event.stopPropagation();toggleChannel('${esc(v.channel).replace(/'/g, "\\'")}','${esc(v.channelUrl || '')}')">${saved ? '★ Channel saved' : '☆ Save channel'}</button>
         <button class="btn danger" onclick="event.stopPropagation();removeVideo('${esc(v.id)}')">Remove</button>
@@ -874,6 +982,7 @@ function setVideoCategory(id, cat) {
   const v = videos.find(x => x.id === id);
   if (!v) return;
   v.category = cat;
+  v.sub = '';                 // subcategories belong to one category
   v.ts = Date.now();
   store.save('videos', videos); scheduleSync();
   toast('Moved to ' + cat);
@@ -1097,6 +1206,7 @@ function clearLibrary() {
 }
 function renderLibStats() {
   $('libStats').textContent = videos.length + ' videos, ' + savedChannels.length + ' saved channels. Data lives in this browser — export a backup if you want a portable copy.';
+  $('pasteCat').innerHTML = allCategories().map(c => `<option ${c === 'Others' ? 'selected' : ''}>${esc(c)}</option>`).join('');
   renderManageCats();
   renderBlocked();
 }
@@ -1118,7 +1228,7 @@ function addVideos(list) {
   for (const v of list) {
     if (!v.id || have.has(v.id)) continue;
     have.add(v.id);
-    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: allCategories().includes(v.category) ? v.category : 'Others', fav: !!v.fav, note: v.note || '', addedAt: v.addedAt || new Date().toISOString().slice(0, 10), ts: v.ts || Date.now() });
+    videos.push({ id: v.id, title: v.title || v.id, channel: v.channel || 'Unknown channel', channelUrl: v.channelUrl || '', duration: v.duration || '', category: allCategories().includes(v.category) ? v.category : 'Others', sub: v.sub || '', fav: !!v.fav, note: v.note || '', addedAt: v.addedAt || new Date().toISOString().slice(0, 10), ts: v.ts || Date.now() });
     delete deletedVideos[v.id];
     added++;
   }
@@ -1150,8 +1260,9 @@ async function importPasted() {
     } catch (e) { /* offline — keep bare entry */ }
     results.push(meta);
   }
-  const added = addVideos(results);
-  status.textContent = 'Added ' + added + ' new video(s).';
+  const cat = $('pasteCat').value || 'Others';
+  const added = addVideos(results.map(r => Object.assign(r, { category: cat })));
+  status.textContent = 'Added ' + added + ' new video(s) to ' + cat + '.';
   $('pasteBox').value = '';
   renderLibStats();
 }
@@ -1276,6 +1387,11 @@ function mergeRemote(remote) {
   }
   customCats = Object.values(byCat).filter(c => !(deletedCats[c.name] && deletedCats[c.name] >= (c.ts || 0)));
   if (remote.catOrder && (remote.catOrder.ts || 0) > (catOrder.ts || 0)) catOrder = remote.catOrder;
+  // subcategories: newer list wins per category
+  for (const [cat, sc] of Object.entries(remote.subCats || {})) {
+    if (!subCats[cat] || (sc.ts || 0) > (subCats[cat].ts || 0)) subCats[cat] = sc;
+  }
+  saveSubs();
   saveCats();
   // watch positions: newer timestamp wins per video
   for (const [id, p] of Object.entries(remote.progress || {})) {
@@ -1312,7 +1428,7 @@ function mergeRemote(remote) {
   saveTombstones();
 }
 function syncPayload() {
-  return { videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, catOrder, progress, hiddenVideos, blockedChannels };
+  return { videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, catOrder, subCats, progress, hiddenVideos, blockedChannels };
 }
 async function syncNow(manual) {
   if (!syncCfg.repo || !syncCfg.token) { if (manual) setSyncStatus('Set repository and token first.'); return; }
@@ -1322,7 +1438,7 @@ async function syncNow(manual) {
     if (remote) mergeRemote(remote.data);
     const payload = syncPayload();
     const str = JSON.stringify(payload);
-    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {}, customCats: remote.data.customCats || [], deletedCats: remote.data.deletedCats || {}, catOrder: remote.data.catOrder || { list: [], ts: 0 }, progress: remote.data.progress || {}, hiddenVideos: remote.data.hiddenVideos || {}, blockedChannels: remote.data.blockedChannels || {} }) : null;
+    const remoteStr = remote ? JSON.stringify({ videos: remote.data.videos || [], channels: remote.data.channels || [], deletedVideos: remote.data.deletedVideos || {}, deletedChannels: remote.data.deletedChannels || {}, customCats: remote.data.customCats || [], deletedCats: remote.data.deletedCats || {}, catOrder: remote.data.catOrder || { list: [], ts: 0 }, subCats: remote.data.subCats || {}, progress: remote.data.progress || {}, hiddenVideos: remote.data.hiddenVideos || {}, blockedChannels: remote.data.blockedChannels || {} }) : null;
     if (str !== remoteStr) { await ghPut(payload, remote ? remote.sha : undefined); }
     lastPushedStr = str;
     setSyncStatus('Synced ✓ ' + new Date().toLocaleTimeString());
@@ -1369,7 +1485,7 @@ async function installUpdate(file) {
 }
 
 function exportJson() {
-  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ videos, channels: savedChannels, deletedVideos, deletedChannels, customCats, deletedCats, catOrder, subCats }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'watchlater-backup.json';
