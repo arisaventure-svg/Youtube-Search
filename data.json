@@ -237,18 +237,6 @@
    "ts": 1785553717133
   },
   {
-   "id": "gstI93tsafM",
-   "title": "MIT Longevity Expert: Do These 3 Things Now to Stay Young, Live Longer, & Keep Doing What You Love",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:18:45",
-   "category": "Self-improvement",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-01",
-   "ts": 1785554497703
-  },
-  {
    "id": "MrgucgFtOwc",
    "title": "Full UPPER BODY Workout (15 Min, At Home, One Set Of Dumbbells)",
    "channel": "MadFit",
@@ -750,6 +738,18 @@
    "note": "",
    "addedAt": "2026-08-06",
    "ts": 1786003044001
+  },
+  {
+   "id": "gstI93tsafM",
+   "title": "MIT Longevity Expert: Do These 3 Things Now to Stay Young, Live Longer, & Keep Doing What You Love",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:18:45",
+   "category": "Self-improvement",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-01",
+   "ts": 1786064311179
   }
  ],
  "channels": [
