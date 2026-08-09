@@ -81,16 +81,6 @@
    "ts": 1785393304733
   },
   {
-   "id": "zBnrkKdNboI",
-   "title": "TOP 1% WOMAN ROUTINE: how to stay productive, healthy + disciplined",
-   "channel": "Michaela Bento",
-   "channelUrl": "https://www.youtube.com/channel/UCjtmwPW5sB95RSnFJzPKzAQ",
-   "duration": "20:17",
-   "category": "Self-improvement",
-   "addedAt": "2026-07-30",
-   "ts": 1785393315083
-  },
-  {
    "id": "95Q0FsEn2Pw",
    "title": "How to Master Your 24 Hours Every Day Like a Genius",
    "channel": "Elroi Motivation",
@@ -899,7 +889,8 @@
  "deletedVideos": {
   "2Z9g-AZinUc": 1785218557048,
   "L0Ji6oTAovo": 1785548020918,
-  "ATdRtfp2-dE": 1785554504602
+  "ATdRtfp2-dE": 1785554504602,
+  "zBnrkKdNboI": 1786240820405
  },
  "deletedChannels": {
   "Mel Robbins": 1786084909142
@@ -948,6 +939,7 @@
   ],
   "ts": 1785632731688
  },
+ "subCats": {},
  "progress": {
   "x3OA9Q6u9EU": {
    "t": 3090,
