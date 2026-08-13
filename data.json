@@ -982,19 +982,6 @@
    "ts": 1786435322331
   },
   {
-   "id": "fQJXQI5iEqE",
-   "title": "15 MIN ABS & BOOTY - on the floor, no squats/lunges (No Equipment)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "16:50",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-12",
-   "ts": 1786498739542
-  },
-  {
    "id": "42aJJPk3CtY",
    "title": "2 in 1 ABS & BOOTY Home Workout (with booty band)",
    "channel": "MadFit",
@@ -1110,6 +1097,19 @@
    "note": "No Warm up. not too hard, 2k dumbells are good. still struggling with pushups",
    "fav": true,
    "sub": "Full Body"
+  },
+  {
+   "id": "fQJXQI5iEqE",
+   "title": "15 MIN ABS & BOOTY - on the floor, no squats/lunges (No Equipment)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "16:50",
+   "category": "Workouts",
+   "sub": "Full Body",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-12",
+   "ts": 1786584304378
   }
  ],
  "channels": [
