@@ -929,19 +929,6 @@
    "fav": true
   },
   {
-   "id": "_y7AJMZ07nE",
-   "title": "15 MIN STANDING ARMS & ABS (No Repeats, No Crunches, No Planks)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "17:17",
-   "category": "Workouts",
-   "sub": "",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-10",
-   "ts": 1786414060871
-  },
-  {
    "id": "IKc9dqp2ahc",
    "title": "8 Things I Wish I Knew Before I Turned 30 (Save Time & Money!)",
    "channel": "Jay Shetty Podcast",
@@ -1109,6 +1096,19 @@
    "fav": true,
    "note": "Great Upper Body 15min",
    "sub": "Upper Body"
+  },
+  {
+   "id": "_y7AJMZ07nE",
+   "title": "15 MIN STANDING ARMS & ABS (No Repeats, No Crunches, No Planks)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "17:17",
+   "category": "Workouts",
+   "sub": "Upper Body",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-10",
+   "ts": 1786581745878
   }
  ],
  "channels": [
