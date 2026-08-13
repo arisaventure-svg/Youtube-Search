@@ -181,18 +181,6 @@
    "ts": 1785478191152
   },
   {
-   "id": "L_Y9xspaU7I",
-   "title": "FULL UPPER BODY WORKOUT (15 min At Home with Dumbbells)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "16:56",
-   "category": "Workouts",
-   "addedAt": "2026-07-31",
-   "ts": 1785547578598,
-   "fav": true,
-   "note": "Great Upper Body 15min"
-  },
-  {
    "id": "L0Ji6oTAovo",
    "title": "15 MIN KILLER HIIT Full Body Workout (No Equipment, At Home)",
    "channel": "MadFit",
@@ -1108,6 +1096,19 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786580196119
+  },
+  {
+   "id": "L_Y9xspaU7I",
+   "title": "FULL UPPER BODY WORKOUT (15 min At Home with Dumbbells)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "16:56",
+   "category": "Workouts",
+   "addedAt": "2026-07-31",
+   "ts": 1786581733690,
+   "fav": true,
+   "note": "Great Upper Body 15min",
+   "sub": "Upper Body"
   }
  ],
  "channels": [
