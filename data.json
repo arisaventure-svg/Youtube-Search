@@ -217,18 +217,6 @@
    "note": ""
   },
   {
-   "id": "pdtf6bnUpzk",
-   "title": "20 MIN FULL BODY WORKOUT With Weights (At Home Strength)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "21:49",
-   "category": "Workouts",
-   "addedAt": "2026-07-29",
-   "ts": 1785632023077,
-   "note": "No Warm up. not too hard, 2k dumbells are good. still struggling with pushups",
-   "fav": true
-  },
-  {
    "id": "gfzC9XMEypg",
    "title": "5 MIN FULL BODY COOL DOWN STRETCHES (Recovery & Flexibility)",
    "channel": "MadFit",
@@ -1109,6 +1097,19 @@
    "note": "",
    "addedAt": "2026-08-10",
    "ts": 1786581745878
+  },
+  {
+   "id": "pdtf6bnUpzk",
+   "title": "20 MIN FULL BODY WORKOUT With Weights (At Home Strength)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "21:49",
+   "category": "Workouts",
+   "addedAt": "2026-07-29",
+   "ts": 1786581792374,
+   "note": "No Warm up. not too hard, 2k dumbells are good. still struggling with pushups",
+   "fav": true,
+   "sub": "Full Body"
   }
  ],
  "channels": [
