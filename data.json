@@ -1185,7 +1185,14 @@
   ],
   "ts": 1786581706534
  },
- "subCats": {},
+ "subCats": {
+  "Workouts": {
+   "list": [
+    "Upper Body"
+   ],
+   "ts": 1786581722388
+  }
+ },
  "progress": {
   "x3OA9Q6u9EU": {
    "t": 3090,
