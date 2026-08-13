@@ -1189,9 +1189,10 @@
  "subCats": {
   "Workouts": {
    "list": [
-    "Upper Body"
+    "Upper Body",
+    "Full Body"
    ],
-   "ts": 1786581722388
+   "ts": 1786581785172
   }
  },
  "progress": {
