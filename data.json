@@ -786,18 +786,6 @@
    "ts": 1786247452461
   },
   {
-   "id": "JnFWrAA2oxM",
-   "title": "Your Body Reset: The Proven Protocol to Get Stronger, Lose Fat, & Take Control of Your Health",
-   "channel": "Mel Robbins and Ladyspinedoc⚡️ - Dr. Betsy Grunch 🧠",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:20:53",
-   "category": "Self-improvement",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-06",
-   "ts": 1786247461929
-  },
-  {
    "id": "gO_x3gnXBzg",
    "title": "Look, Feel, & Stay Young Forever: #1 Orthopedic Surgeon’s Proven Protocol | The Mel Robbins Podcast",
    "channel": "Mel Robbins",
@@ -1192,6 +1180,18 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786684916167
+  },
+  {
+   "id": "JnFWrAA2oxM",
+   "title": "Your Body Reset: The Proven Protocol to Get Stronger, Lose Fat, & Take Control of Your Health",
+   "channel": "Mel Robbins and Ladyspinedoc⚡️ - Dr. Betsy Grunch 🧠",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:20:53",
+   "category": "Self-improvement",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-06",
+   "ts": 1786684921488
   }
  ],
  "channels": [
