@@ -41,16 +41,6 @@
    "ts": 1785287627713
   },
   {
-   "id": "vI5MzT-wIjs",
-   "title": "30 MIN CARDIO AEROBICS WORKOUT - Move To The Beat (All Standing, Low Impact)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "29:28",
-   "category": "Workouts",
-   "addedAt": "2026-07-29",
-   "ts": 1785291879777
-  },
-  {
    "id": "oJAV0rtSrFc",
    "title": "#1 Mindset Expert: Simple Mindset Shifts That Transform Your Body, Energy, & Life",
    "channel": "Mel Robbins",
@@ -1188,6 +1178,17 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786610255375
+  },
+  {
+   "id": "vI5MzT-wIjs",
+   "title": "30 MIN CARDIO AEROBICS WORKOUT - Move To The Beat (All Standing, Low Impact)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "29:28",
+   "category": "Workouts",
+   "addedAt": "2026-07-29",
+   "ts": 1786675147037,
+   "sub": "Cardio"
   }
  ],
  "channels": [
@@ -1421,8 +1422,8 @@
    "ts": 1786277449034
   },
   "vI5MzT-wIjs": {
-   "t": 1744,
-   "ts": 1786328361859
+   "t": 1741,
+   "ts": 1786675149817
   },
   "BB0QpDx93lk": {
    "t": 735,
