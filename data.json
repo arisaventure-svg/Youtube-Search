@@ -1269,9 +1269,10 @@
   "Workouts": {
    "list": [
     "Upper Body",
-    "Full Body"
+    "Full Body",
+    "Cardio"
    ],
-   "ts": 1786581785172
+   "ts": 1786675129743
   }
  },
  "progress": {
