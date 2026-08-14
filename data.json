@@ -1189,6 +1189,19 @@
    "addedAt": "2026-07-29",
    "ts": 1786675147037,
    "sub": "Cardio"
+  },
+  {
+   "id": "ddCt_T7MNOA",
+   "title": "How to Rewire Your Mind to Handle Anything, Turn Off Stress, & Calm Your Body",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:01:16",
+   "category": "Self-improvement",
+   "sub": "",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-14",
+   "ts": 1786684858702
   }
  ],
  "channels": [
@@ -1421,6 +1434,10 @@
    "t": 741,
    "ts": 1786277449034
   },
+  "cEVAjm_ETtY": {
+   "t": 3921,
+   "ts": 1786343086552
+  },
   "vI5MzT-wIjs": {
    "t": 1766,
    "ts": 1786677007248
@@ -1440,10 +1457,6 @@
   "_y7AJMZ07nE": {
    "t": 1036,
    "ts": 1786498639622
-  },
-  "cEVAjm_ETtY": {
-   "t": 3921,
-   "ts": 1786343086552
   },
   "Mcw0QG1XkzU": {
    "t": 65,
@@ -1469,10 +1482,6 @@
    "t": 297,
    "ts": 1786500087814
   },
-  "E4rTyhYfZhE": {
-   "t": 4022,
-   "ts": 1786580139331
-  },
   "S6LADsoh_ec": {
    "t": 685,
    "ts": 1786531783078
@@ -1493,9 +1502,9 @@
    "t": 523,
    "ts": 1786580114432
   },
-  "KCjIz9xurqk": {
-   "t": 1044,
-   "ts": 1786585424437
+  "E4rTyhYfZhE": {
+   "t": 4022,
+   "ts": 1786580139331
   },
   "_BdY8JO6ups": {
    "t": 1478,
@@ -1504,6 +1513,10 @@
   "JGEsSDUCr_c": {
    "t": 442,
    "ts": 1786610241100
+  },
+  "KCjIz9xurqk": {
+   "t": 1044,
+   "ts": 1786585424437
   }
  },
  "hiddenVideos": {
