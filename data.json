@@ -1106,19 +1106,6 @@
    "sub": "Cardio"
   },
   {
-   "id": "ddCt_T7MNOA",
-   "title": "How to Rewire Your Mind to Handle Anything, Turn Off Stress, & Calm Your Body",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:01:16",
-   "category": "Self-improvement",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-14",
-   "ts": 1786684858702
-  },
-  {
    "id": "_BdY8JO6ups",
    "title": "#1 Neurologists: 5 Habits to Boost Brain Health & Prevent Alzheimer's",
    "channel": "Mel Robbins and The Brain Docs",
@@ -1152,10 +1139,23 @@
    "duration": "1:21:07",
    "category": "Self-improvement",
    "sub": "",
-   "fav": false,
+   "fav": true,
    "note": "",
    "addedAt": "2026-08-15",
-   "ts": 1786763362116
+   "ts": 1786767713264
+  },
+  {
+   "id": "ddCt_T7MNOA",
+   "title": "How to Rewire Your Mind to Handle Anything, Turn Off Stress, & Calm Your Body",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:01:16",
+   "category": "Self-improvement",
+   "sub": "",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-14",
+   "ts": 1786767715117
   }
  ],
  "channels": [
