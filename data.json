@@ -914,19 +914,6 @@
    "ts": 1786580166154
   },
   {
-   "id": "GIGmGupeD_I",
-   "title": "#1 Brain Surgeon: What Your Dreams Are Trying to Tell You About Yourself",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:07:32",
-   "category": "Self-improvement",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1786580172229
-  },
-  {
    "id": "dz23H7Cgylw",
    "title": "How to Master Any Conversation, Communicate with Confidence, and Deal With Difficult People",
    "channel": "Mel Robbins",
@@ -1131,6 +1118,19 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786767725928
+  },
+  {
+   "id": "GIGmGupeD_I",
+   "title": "#1 Brain Surgeon: What Your Dreams Are Trying to Tell You About Yourself",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:07:32",
+   "category": "Self-improvement",
+   "sub": "",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1786767731046
   }
  ],
  "channels": [
