@@ -1131,6 +1131,19 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786767731046
+  },
+  {
+   "id": "AWdwfeTBN8U",
+   "title": "Easy Black Bean Soup Recipe",
+   "channel": "Preppy Kitchen",
+   "channelUrl": "https://www.youtube.com/channel/UCTvYEid8tmg0jqGPDkehc_Q",
+   "duration": "8:02",
+   "category": "Food",
+   "sub": "",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-15",
+   "ts": 1786789867983
   }
  ],
  "channels": [
@@ -1470,6 +1483,10 @@
   "IKc9dqp2ahc": {
    "t": 1906,
    "ts": 1786766097332
+  },
+  "AWdwfeTBN8U": {
+   "t": 372,
+   "ts": 1786789862740
   }
  },
  "hiddenVideos": {
