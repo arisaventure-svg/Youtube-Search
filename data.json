@@ -1183,19 +1183,6 @@
    "note": "",
    "addedAt": "2026-08-15",
    "ts": 1786790041307
-  },
-  {
-   "id": "wtl4FJdDBQQ",
-   "title": "Just 10 minutes! Super Easy Creamy Tomato Pasta Recipe! I make it every weekend!",
-   "channel": "Einfach und herzhaft",
-   "channelUrl": "https://www.youtube.com/channel/UCAcqGgtiz8GeYvYux7vjnaA",
-   "duration": "5:58",
-   "category": "Food",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-15",
-   "ts": 1786790082632
   }
  ],
  "channels": [
@@ -1229,7 +1216,8 @@
   "2WhnTeC0Ql0": 1786684960405,
   "asojiVtJ7F0": 1786764172055,
   "awLRiNhrNis": 1786767719449,
-  "E4rTyhYfZhE": 1786767720697
+  "E4rTyhYfZhE": 1786767720697,
+  "wtl4FJdDBQQ": 1786790130157
  },
  "deletedChannels": {
   "Mel Robbins": 1786084909142
@@ -1543,6 +1531,10 @@
   "hJxnH7OKLps": {
    "t": 47,
    "ts": 1786790060392
+  },
+  "wtl4FJdDBQQ": {
+   "t": 145,
+   "ts": 1786790126330
   }
  },
  "hiddenVideos": {
