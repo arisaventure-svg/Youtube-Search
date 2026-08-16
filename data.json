@@ -1329,6 +1329,13 @@
     "Cardio"
    ],
    "ts": 1786675129743
+  },
+  "Food": {
+   "list": [
+    "Onion, Garlic",
+    "Heavy Cream"
+   ],
+   "ts": 1786864025918
   }
  },
  "progress": {
