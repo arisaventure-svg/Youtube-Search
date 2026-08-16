@@ -1224,19 +1224,6 @@
    "ts": 1786864093472
   },
   {
-   "id": "VCpM2pKMlu4",
-   "title": "Creamy Garlic Sauce for Chicken or Pasta",
-   "channel": "MOMables - Laura Fuentes",
-   "channelUrl": "https://www.youtube.com/channel/UC0oO2ekgH83Zc3j7SOvT_2Q",
-   "duration": "2:00",
-   "category": "Food",
-   "sub": "Heavy Cream",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-15",
-   "ts": 1786864114071
-  },
-  {
    "id": "5uSBF_s7Pl4",
    "title": "30 Minute Broccoli Cheddar Soup (Better than Panera!)",
    "channel": "Gimme Delicious",
@@ -1248,6 +1235,19 @@
    "note": "4 tablespoons butter ½ stick\n½ medium onion chopped\n2-3 cloves garlic minced\n4 tablespoon AP flour\n2 cups low sodium chicken or vegetable stock\n1 tsp kosher salt\n½ tsp black pepper\n¼ tsp  or ground nutmeg, optional\n3 cups broccoli florets or 1 large head, cut into small pieces\n1 large carrot grated, julienned or finely chopped\n2 cups half & half or milk or light or heavy cream\n8 oz block grated cheddar cheese or 2 cups (mild, medium, or sharp )",
    "addedAt": "2026-08-16",
    "ts": 1786864291221
+  },
+  {
+   "id": "VCpM2pKMlu4",
+   "title": "Creamy Garlic Sauce for Chicken or Pasta",
+   "channel": "MOMables - Laura Fuentes",
+   "channelUrl": "https://www.youtube.com/channel/UC0oO2ekgH83Zc3j7SOvT_2Q",
+   "duration": "2:00",
+   "category": "Food",
+   "sub": "Heavy Cream",
+   "fav": true,
+   "note": "📝 INGREDIENTS\nYield: 4 servings\n1 tablespoon butter\n3 garlic cloves, grated\n1 teaspoon Italian seasoning\n1 cup chicken broth, or stock\n1 cup half and half or heavy cream, warmed",
+   "addedAt": "2026-08-15",
+   "ts": 1786864531327
   }
  ],
  "channels": [
