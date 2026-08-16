@@ -1224,19 +1224,6 @@
    "ts": 1786864093472
   },
   {
-   "id": "5uSBF_s7Pl4",
-   "title": "30 Minute Broccoli Cheddar Soup (Better than Panera!)",
-   "channel": "Gimme Delicious",
-   "channelUrl": "https://www.youtube.com/@gimmedelicious",
-   "duration": "",
-   "category": "Food",
-   "sub": "Heavy Cream",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-16",
-   "ts": 1786864102154
-  },
-  {
    "id": "VCpM2pKMlu4",
    "title": "Creamy Garlic Sauce for Chicken or Pasta",
    "channel": "MOMables - Laura Fuentes",
@@ -1248,6 +1235,19 @@
    "note": "",
    "addedAt": "2026-08-15",
    "ts": 1786864114071
+  },
+  {
+   "id": "5uSBF_s7Pl4",
+   "title": "30 Minute Broccoli Cheddar Soup (Better than Panera!)",
+   "channel": "Gimme Delicious",
+   "channelUrl": "https://www.youtube.com/@gimmedelicious",
+   "duration": "",
+   "category": "Food",
+   "sub": "Heavy Cream",
+   "fav": false,
+   "note": "4 tablespoons butter ½ stick\n½ medium onion chopped\n2-3 cloves garlic minced\n4 tablespoon AP flour\n2 cups low sodium chicken or vegetable stock\n1 tsp kosher salt\n½ tsp black pepper\n¼ tsp  or ground nutmeg, optional\n3 cups broccoli florets or 1 large head, cut into small pieces\n1 large carrot grated, julienned or finely chopped\n2 cups half & half or milk or light or heavy cream\n8 oz block grated cheddar cheese or 2 cups (mild, medium, or sharp )",
+   "addedAt": "2026-08-16",
+   "ts": 1786864291221
   }
  ],
  "channels": [
