@@ -1044,19 +1044,6 @@
    "ts": 1786610245422
   },
   {
-   "id": "MeICfO39jsY",
-   "title": "Cuban-Style Black Beans",
-   "channel": "Michelle’s Cooking Channel",
-   "channelUrl": "https://www.youtube.com/channel/UCXgGRDltQgC2w_EjzEnNiOw",
-   "duration": "9:09",
-   "category": "Food",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1786610255375
-  },
-  {
    "id": "vI5MzT-wIjs",
    "title": "30 MIN CARDIO AEROBICS WORKOUT - Move To The Beat (All Standing, Low Impact)",
    "channel": "MadFit",
@@ -1131,19 +1118,6 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1786767731046
-  },
-  {
-   "id": "AWdwfeTBN8U",
-   "title": "Easy Black Bean Soup Recipe",
-   "channel": "Preppy Kitchen",
-   "channelUrl": "https://www.youtube.com/channel/UCTvYEid8tmg0jqGPDkehc_Q",
-   "duration": "8:02",
-   "category": "Food",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-15",
-   "ts": 1786789867983
   },
   {
    "id": "eicJmsUazYQ",
@@ -1222,6 +1196,32 @@
    "note": "",
    "addedAt": "2026-08-16",
    "ts": 1786845682248
+  },
+  {
+   "id": "AWdwfeTBN8U",
+   "title": "Easy Black Bean Soup Recipe",
+   "channel": "Preppy Kitchen",
+   "channelUrl": "https://www.youtube.com/channel/UCTvYEid8tmg0jqGPDkehc_Q",
+   "duration": "8:02",
+   "category": "Food",
+   "sub": "",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-15",
+   "ts": 1786855385492
+  },
+  {
+   "id": "MeICfO39jsY",
+   "title": "Cuban-Style Black Beans",
+   "channel": "Michelle’s Cooking Channel",
+   "channelUrl": "https://www.youtube.com/channel/UCXgGRDltQgC2w_EjzEnNiOw",
+   "duration": "9:09",
+   "category": "Food",
+   "sub": "",
+   "fav": true,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1786855387124
   }
  ],
  "channels": [
