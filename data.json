@@ -449,18 +449,6 @@
    "ts": 1785981045989
   },
   {
-   "id": "J4wm6qiv5pI",
-   "title": "20 MIN KILLER HIIT Full Body Workout (No Equipment, No Repeat, Cardio At Home)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "21:08",
-   "category": "Workouts",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-06",
-   "ts": 1785982030188
-  },
-  {
    "id": "07c6wlJh89U",
    "title": "30 MIN FULL BODY HIIT with weights (NO REPEATS, NO JUMPING)",
    "channel": "MadFit",
@@ -1274,6 +1262,19 @@
    "note": "",
    "addedAt": "2026-08-16",
    "ts": 1786870084084
+  },
+  {
+   "id": "J4wm6qiv5pI",
+   "title": "20 MIN KILLER HIIT Full Body Workout (No Equipment, No Repeat, Cardio At Home)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "21:08",
+   "category": "Workouts",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-06",
+   "ts": 1786870786688,
+   "sub": "Cardio"
   }
  ],
  "channels": [
