@@ -1224,19 +1224,6 @@
    "ts": 1786864077871
   },
   {
-   "id": "5uSBF_s7Pl4",
-   "title": "30 Minute Broccoli Cheddar Soup (Better than Panera!)",
-   "channel": "Gimme Delicious",
-   "channelUrl": "https://www.youtube.com/@gimmedelicious",
-   "duration": "",
-   "category": "Food",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-16",
-   "ts": 1786864086811
-  },
-  {
    "id": "oejBWr_6GQo",
    "title": "Super Quick Creamy Chicken Pasta",
    "channel": "Laura in the Kitchen",
@@ -1248,6 +1235,19 @@
    "note": "",
    "addedAt": "2026-08-15",
    "ts": 1786864093472
+  },
+  {
+   "id": "5uSBF_s7Pl4",
+   "title": "30 Minute Broccoli Cheddar Soup (Better than Panera!)",
+   "channel": "Gimme Delicious",
+   "channelUrl": "https://www.youtube.com/@gimmedelicious",
+   "duration": "",
+   "category": "Food",
+   "sub": "Heavy Cream",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-16",
+   "ts": 1786864102154
   }
  ],
  "channels": [
