@@ -1386,8 +1386,8 @@
  "deletedCats": {},
  "catOrder": {
   "list": [
-   "Self-improvement",
    "Workouts",
+   "Self-improvement",
    "Warmup",
    "Cool Down",
    "Music",
@@ -1398,7 +1398,7 @@
    "Finance",
    "Pregnancy"
   ],
-  "ts": 1786581706534
+  "ts": 1786928209279
  },
  "subCats": {
   "Workouts": {
