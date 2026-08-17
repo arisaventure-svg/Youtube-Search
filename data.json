@@ -1387,9 +1387,9 @@
  "catOrder": {
   "list": [
    "Workouts",
-   "Self-improvement",
    "Warmup",
    "Cool Down",
+   "Self-improvement",
    "Music",
    "Others",
    "Food",
@@ -1398,7 +1398,7 @@
    "Finance",
    "Pregnancy"
   ],
-  "ts": 1786928209279
+  "ts": 1786928217894
  },
  "subCats": {
   "Workouts": {
