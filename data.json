@@ -1460,10 +1460,6 @@
    "ts": 1785632684983
   },
   {
-   "name": "Cool Down",
-   "ts": 1785632688943
-  },
-  {
    "name": "IVF",
    "ts": 1785743605185
   },
@@ -1476,7 +1472,9 @@
    "ts": 1786002967095
   }
  ],
- "deletedCats": {},
+ "deletedCats": {
+  "Cool Down": 1787022049456
+ },
  "catOrder": {
   "list": [
    "Workouts",
@@ -1510,6 +1508,10 @@
     "Heavy Cream"
    ],
    "ts": 1786864025918
+  },
+  "Cool Down": {
+   "list": [],
+   "ts": 1787022049456
   }
  },
  "progress": {
