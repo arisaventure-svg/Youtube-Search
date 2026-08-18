@@ -197,18 +197,6 @@
    "note": ""
   },
   {
-   "id": "gfzC9XMEypg",
-   "title": "5 MIN FULL BODY COOL DOWN STRETCHES (Recovery & Flexibility)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "7:05",
-   "category": "Cool Down",
-   "fav": true,
-   "note": "Cool down after HIIT",
-   "addedAt": "2026-08-01",
-   "ts": 1785632750858
-  },
-  {
    "id": "G_XhrNkJmEg",
    "title": "Your Dreams Are NO Joke: It’s Time to DREAM BIG Again & 3 Ways to Get Started | Mel Robbins Podcast",
    "channel": "Mel Robbins",
@@ -967,19 +955,6 @@
    "ts": 1786584368214
   },
   {
-   "id": "3N_8ioZ4jdk",
-   "title": "8 MIN FULL BODY COOL DOWN & STRETCH",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "9:51",
-   "category": "Cool Down",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1786584376396
-  },
-  {
    "id": "PG_IsTiVjnM",
    "title": "FULL BODY STRETCH & MOBILITY ROUTINE - for flexibility and relaxation",
    "channel": "MadFit",
@@ -1405,6 +1380,32 @@
    "note": "",
    "addedAt": "2026-08-18",
    "ts": 1787017777739
+  },
+  {
+   "id": "gfzC9XMEypg",
+   "title": "5 MIN FULL BODY COOL DOWN STRETCHES (Recovery & Flexibility)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "7:05",
+   "category": "Workouts",
+   "fav": true,
+   "note": "Cool down after HIIT",
+   "addedAt": "2026-08-01",
+   "ts": 1787022033037,
+   "sub": ""
+  },
+  {
+   "id": "3N_8ioZ4jdk",
+   "title": "8 MIN FULL BODY COOL DOWN & STRETCH",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "9:51",
+   "category": "Workouts",
+   "sub": "",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1787022035068
   }
  ],
  "channels": [
