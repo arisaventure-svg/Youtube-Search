@@ -335,18 +335,6 @@
    "ts": 1785981045989
   },
   {
-   "id": "07c6wlJh89U",
-   "title": "30 MIN FULL BODY HIIT with weights (NO REPEATS, NO JUMPING)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "32:01",
-   "category": "Workouts",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-06",
-   "ts": 1785982033920
-  },
-  {
    "id": "hA9PVG5ZtRU",
    "title": "10 MIN KILLER HIIT Full Body Workout (No Equipment, No Repeats)",
    "channel": "MadFit",
@@ -1415,6 +1403,19 @@
    "addedAt": "2026-07-29",
    "ts": 1787022238103,
    "sub": "Upper Body"
+  },
+  {
+   "id": "07c6wlJh89U",
+   "title": "30 MIN FULL BODY HIIT with weights (NO REPEATS, NO JUMPING)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "32:01",
+   "category": "Workouts",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-06",
+   "ts": 1787022242601,
+   "sub": "HIIT"
   }
  ],
  "channels": [
