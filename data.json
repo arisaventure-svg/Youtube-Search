@@ -263,30 +263,6 @@
    "ts": 1785826491742
   },
   {
-   "id": "uysZfSEmeRE",
-   "title": "5 Money Rules That Will Change Your Life & Create Financial Freedom",
-   "channel": "Mel Robbins and David Bach",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:09:52",
-   "category": "Finance",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-03",
-   "ts": 1785826501138
-  },
-  {
-   "id": "Ai4iNmW2A1c",
-   "title": "The Best Financial Advice You’ll Ever Hear",
-   "channel": "Mel Robbins",
-   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
-   "duration": "1:19:16",
-   "category": "Finance",
-   "fav": true,
-   "note": "",
-   "addedAt": "2026-08-03",
-   "ts": 1785826502888
-  },
-  {
    "id": "e86ie1xLlnE",
    "title": "How to Set & Achieve Goals: 2 Surprising Science-Backed Steps You Must Follow",
    "channel": "Mel Robbins",
@@ -1430,6 +1406,30 @@
    "note": "",
    "addedAt": "2026-08-18",
    "ts": 1787022466537
+  },
+  {
+   "id": "uysZfSEmeRE",
+   "title": "5 Money Rules That Will Change Your Life & Create Financial Freedom",
+   "channel": "Mel Robbins and David Bach",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:09:52",
+   "category": "Finance",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1787027763028
+  },
+  {
+   "id": "Ai4iNmW2A1c",
+   "title": "The Best Financial Advice You’ll Ever Hear",
+   "channel": "Mel Robbins",
+   "channelUrl": "https://www.youtube.com/channel/UCk2U-Oqn7RXf-ydPqfSxG5g",
+   "duration": "1:19:16",
+   "category": "Finance",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-03",
+   "ts": 1787027763761
   }
  ],
  "channels": [
