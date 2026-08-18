@@ -816,19 +816,6 @@
    "ts": 1786584368214
   },
   {
-   "id": "PG_IsTiVjnM",
-   "title": "FULL BODY STRETCH & MOBILITY ROUTINE - for flexibility and relaxation",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "26:09",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1786584385079
-  },
-  {
    "id": "vI5MzT-wIjs",
    "title": "30 MIN CARDIO AEROBICS WORKOUT - Move To The Beat (All Standing, Low Impact)",
    "channel": "MadFit",
@@ -1417,6 +1404,19 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1787022298303
+  },
+  {
+   "id": "PG_IsTiVjnM",
+   "title": "FULL BODY STRETCH & MOBILITY ROUTINE - for flexibility and relaxation",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "26:09",
+   "category": "Workouts",
+   "sub": "Cool down",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1787022306551
   }
  ],
  "channels": [
