@@ -1355,19 +1355,6 @@
    "sub": "Upper Body"
   },
   {
-   "id": "L0Ji6oTAovo",
-   "title": "15 MIN KILLER HIIT Full Body Workout (No Equipment, At Home)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "18:03",
-   "category": "Workouts",
-   "fav": true,
-   "note": "HIIT",
-   "addedAt": "2026-08-01",
-   "ts": 1787022181169,
-   "sub": "Full Body"
-  },
-  {
    "id": "QzF7o4sjoYo",
    "title": "30 MIN FULL BODY STRENGTH WORKOUT (MadFit App Express Program)",
    "channel": "MadFit",
@@ -1414,6 +1401,19 @@
    "addedAt": "2026-07-31",
    "ts": 1787022208802,
    "sub": "Upper Body"
+  },
+  {
+   "id": "L0Ji6oTAovo",
+   "title": "15 MIN KILLER HIIT Full Body Workout (No Equipment, At Home)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "18:03",
+   "category": "Workouts",
+   "fav": true,
+   "note": "HIIT",
+   "addedAt": "2026-08-01",
+   "ts": 1787022234605,
+   "sub": "HIIT"
   }
  ],
  "channels": [
