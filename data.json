@@ -1499,9 +1499,10 @@
     "Full Body",
     "Cardio",
     "Cool down",
-    "Upper"
+    "Upper",
+    "Lower"
    ],
-   "ts": 1787022124043
+   "ts": 1787022172406
   },
   "Food": {
    "list": [
