@@ -1217,32 +1217,6 @@
    "ts": 1787017775355
   },
   {
-   "id": "IMurdR_YaWU",
-   "title": "10 MIN CARDIO WORKOUT AT HOME (No Jumping/Apartment Friendly, No Equipment)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "12:19",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-18",
-   "ts": 1787017777739
-  },
-  {
-   "id": "3N_8ioZ4jdk",
-   "title": "8 MIN FULL BODY COOL DOWN & STRETCH",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "9:51",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1787022035068
-  },
-  {
    "id": "mf6CZ5_7dfc",
    "title": "5 MIN UPPER BODY WARM UP ROUTINE - total upper body warm up",
    "channel": "MadFit",
@@ -1417,6 +1391,32 @@
    "addedAt": "2026-08-06",
    "ts": 1787022246086,
    "sub": "HIIT"
+  },
+  {
+   "id": "3N_8ioZ4jdk",
+   "title": "8 MIN FULL BODY COOL DOWN & STRETCH",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "9:51",
+   "category": "Workouts",
+   "sub": "Cool down",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1787022255787
+  },
+  {
+   "id": "IMurdR_YaWU",
+   "title": "10 MIN CARDIO WORKOUT AT HOME (No Jumping/Apartment Friendly, No Equipment)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "12:19",
+   "category": "Workouts",
+   "sub": "Cardio",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-18",
+   "ts": 1787022258552
   }
  ],
  "channels": [
