@@ -803,19 +803,6 @@
    "ts": 1786584304378
   },
   {
-   "id": "8tev7YTVa3U",
-   "title": "7 MIN DAILY STRETCH to Fix Your Posture!",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "8:52",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-13",
-   "ts": 1786584368214
-  },
-  {
    "id": "vI5MzT-wIjs",
    "title": "30 MIN CARDIO AEROBICS WORKOUT - Move To The Beat (All Standing, Low Impact)",
    "channel": "MadFit",
@@ -1417,6 +1404,19 @@
    "note": "",
    "addedAt": "2026-08-13",
    "ts": 1787022306551
+  },
+  {
+   "id": "8tev7YTVa3U",
+   "title": "7 MIN DAILY STRETCH to Fix Your Posture!",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "8:52",
+   "category": "Workouts",
+   "sub": "Cool down",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-13",
+   "ts": 1787022314154
   }
  ],
  "channels": [
