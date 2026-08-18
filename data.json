@@ -1152,32 +1152,6 @@
    "ts": 1786929453992
   },
   {
-   "id": "Z7QGF4l9buc",
-   "title": "FREE 30 Minute Sweat Session | DAY 2 - January Challenge",
-   "channel": "The Fitness Marshall",
-   "channelUrl": "https://www.youtube.com/channel/UCyqR7WkL8i1b6xtSssDmW9w",
-   "duration": "38:25",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-17",
-   "ts": 1786931232248
-  },
-  {
-   "id": "PqqJBaE4srs",
-   "title": "10 MIN CARDIO WORKOUT AT HOME (No Jumping/Apartment Friendly, No Equipment)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
-   "duration": "11:32",
-   "category": "Workouts",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-18",
-   "ts": 1787017754692
-  },
-  {
    "id": "mf6CZ5_7dfc",
    "title": "5 MIN UPPER BODY WARM UP ROUTINE - total upper body warm up",
    "channel": "MadFit",
@@ -1417,6 +1391,32 @@
    "note": "",
    "addedAt": "2026-08-18",
    "ts": 1787022270770
+  },
+  {
+   "id": "PqqJBaE4srs",
+   "title": "10 MIN CARDIO WORKOUT AT HOME (No Jumping/Apartment Friendly, No Equipment)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/channel/UCpQ34afVgk8cRQBjSJ1xuJQ",
+   "duration": "11:32",
+   "category": "Workouts",
+   "sub": "Cardio",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-18",
+   "ts": 1787022274020
+  },
+  {
+   "id": "Z7QGF4l9buc",
+   "title": "FREE 30 Minute Sweat Session | DAY 2 - January Challenge",
+   "channel": "The Fitness Marshall",
+   "channelUrl": "https://www.youtube.com/channel/UCyqR7WkL8i1b6xtSssDmW9w",
+   "duration": "38:25",
+   "category": "Workouts",
+   "sub": "Cardio",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-17",
+   "ts": 1787022276919
   }
  ],
  "channels": [
