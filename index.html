@@ -96,6 +96,9 @@
   .catchip.active { background: var(--surface2); border-color: #4a5264; color: var(--text); }
   .catchip[draggable="true"] { cursor: grab; }
   .catchip.dragover { border-color: var(--accent); }
+  /* the row the arrow keys are currently moving in */
+  .navactive .catchip.active,
+  .navactive .scopebtn.active { box-shadow: 0 0 0 2px var(--accent-soft); border-color: var(--accent); }
 
   /* save-to-category popover */
   .catwrap { position: relative; display: inline-block; }
@@ -274,6 +277,7 @@
       <button class="scopebtn active" id="scopeYt" onclick="setScope('youtube')">All of YouTube</button>
       <button class="scopebtn" id="scopeLib" onclick="setScope('library')">My library</button>
       <span class="spacer"></span>
+      <button class="scopebtn" id="addLinkBtn" onclick="toggleAddPanel()" title="Add videos by pasting links">＋ Add by link</button>
       <select class="catselect" id="ytSort" onchange="setYtSort(this.value)" title="Sort results">
         <option value="relevance">Best match</option>
         <option value="date">Newest first</option>
@@ -282,6 +286,26 @@
     </div>
     <div class="catchips hidden" id="catChips"></div>
     <div class="catchips hidden" id="subChips" style="margin-top:-4px"></div>
+
+    <div class="panel hidden" id="addPanel" style="margin-bottom:14px">
+      <h3>Add videos by link</h3>
+      <p>Paste YouTube links (one per line, or mixed in text). Titles and channels are fetched automatically.</p>
+      <textarea class="paste" id="pasteBox" style="min-height:62px" placeholder="https://www.youtube.com/watch?v=…&#10;https://youtu.be/…"></textarea>
+      <div class="row">
+        <span class="note">into</span>
+        <select class="catselect" id="pasteCat" onchange="renderPasteSubs()"></select>
+        <select class="catselect" id="pasteSub"></select>
+        <label class="note" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="pasteFav" style="accent-color:var(--accent);width:15px;height:15px"> ★ favorite
+        </label>
+      </div>
+      <div class="row">
+        <button class="btn primary" onclick="importPasted()">Add videos</button>
+        <button class="btn" onclick="toggleAddPanel()">Hide</button>
+        <span class="note" id="pasteStatus"></span>
+      </div>
+    </div>
+
     <p class="hint" id="searchHint"></p>
     <div id="searchResults" class="results"></div>
     <div id="searchEmpty" class="empty"></div>
@@ -300,17 +324,6 @@
   <!-- LIBRARY / MANAGE VIEW -->
   <section id="view-library" class="hidden">
     <div class="panel">
-      <h3>Add videos by link</h3>
-      <p>Paste YouTube links (one per line, or mixed in text). Titles and channels are fetched automatically when you're online.</p>
-      <textarea class="paste" id="pasteBox" placeholder="https://www.youtube.com/watch?v=…&#10;https://youtu.be/…"></textarea>
-      <div class="row">
-        <button class="btn primary" onclick="importPasted()">Add videos</button>
-        <span class="note">into</span>
-        <select class="catselect" id="pasteCat"></select>
-        <span class="note" id="pasteStatus"></span>
-      </div>
-    </div>
-    <div class="panel">
       <h3>Import Watch Later export</h3>
       <p>Load a Google Takeout CSV (<i>Watch later-videos.csv</i>) or a JSON backup made by this app.</p>
       <div class="row">
@@ -322,7 +335,7 @@
     </div>
     <div class="panel">
       <h3>Categories</h3>
-      <p>Delete any category (its videos move to Others), add new ones, and use ◀ ▶ to change the order they appear in My library. Only Others is permanent.</p>
+      <p>Delete any category (its videos move to Others), add new ones, and use ◀ ▶ to change the order. In My library you can also drag chips to reorder and double-click one to rename it. Only Others is permanent.</p>
       <div class="row" id="catManageList"></div>
       <div class="row"><button class="btn" onclick="promptNewCategory()">＋ Add category</button></div>
     </div>
@@ -375,7 +388,7 @@
         <button class="btn" onclick="exportJson()">Export JSON backup</button>
         <button class="btn danger" onclick="clearLibrary()">Clear all videos</button>
       </div>
-      <p class="note" style="margin-top:12px">App version 22 — subcategories · drag-and-drop category order · category picker for pasted links · YouTube sign-in panel · ← → tab switch · hide & block · search sort · 🎧 audio mode · one-click updates · in-app player · resume · sync</p>
+      <p class="note" style="margin-top:12px">App version 26 — add-by-link always open on the All of YouTube tab · ↑↓←→ move through tabs, categories &amp; subcategories · double-click to rename · delete subcategories · channel browsing · drag-and-drop order · hide &amp; block · search sort · 🎧 audio mode · one-click updates · in-app player · resume · sync</p>
     </div>
   </section>
 </div>
@@ -549,12 +562,77 @@ function setScope(s) {
   ytResults = [];
   updateClearBtn();
   $('ytSort').classList.toggle('hidden', s !== 'youtube');
+  // the add-by-link panel lives on the All of YouTube tab
+  $('addPanel').classList.toggle('hidden', s !== 'youtube');
+  $('addLinkBtn').classList.toggle('hidden', s !== 'youtube');
+  $('addLinkBtn').classList.toggle('active', s === 'youtube');
+  if (s === 'youtube') renderPasteCats();
   $('catChips').classList.toggle('hidden', s !== 'library');
-  if (s === 'library') renderCatChips();
+  if (s === 'library') renderCatChips(); else $('subChips').classList.add('hidden');
   $('searchResults').innerHTML = '';
   renderSearch();
+  updateNavHighlight();
   $('q').focus();
 }
+/* ---- keyboard grid: row 0 = tabs, row 1 = categories, row 2 = subcategories ---- */
+let navRow = 0;
+function navRows() {
+  const rows = ['scope'];
+  if (scope === 'library') {
+    rows.push('cats');
+    if (catFilter !== 'All' && catFilter !== '__fav' && allCategories().includes(catFilter)) rows.push('subs');
+  }
+  return rows;
+}
+function updateNavHighlight() {
+  const rows = navRows();
+  if (navRow >= rows.length) navRow = rows.length - 1;
+  if (navRow < 0) navRow = 0;
+  const cur = rows[navRow];
+  document.querySelector('.scope').classList.toggle('navactive', cur === 'scope');
+  $('catChips').classList.toggle('navactive', cur === 'cats');
+  $('subChips').classList.toggle('navactive', cur === 'subs');
+}
+function navMove(dx, dy) {
+  const rows = navRows();
+  if (navRow >= rows.length) navRow = rows.length - 1;
+  if (dy) {
+    const next = navRow + dy;
+    if (next < 0 || next >= rows.length) return false;
+    navRow = next;
+    updateNavHighlight();
+    return true;
+  }
+  const row = rows[navRow];
+  if (row === 'scope') {
+    const order = ['youtube', 'library'];
+    const i = order.indexOf(scope) + dx;
+    if (i < 0 || i >= order.length) return false;
+    setScope(order[i]);
+    navRow = 0;
+    updateNavHighlight();
+    return true;
+  }
+  if (row === 'cats') {
+    const i = chipKeys.indexOf(catFilter) + dx;
+    if (i < 0 || i >= chipKeys.length) return false;
+    setCatFilterIdx(i);
+    navRow = Math.min(navRow, navRows().length - 1);
+    updateNavHighlight();
+    return true;
+  }
+  if (row === 'subs') {
+    const subs = subsOf(catFilter);
+    const cur = subFilter === 'All' ? 0 : subs.indexOf(subFilter) + 1;
+    const i = cur + dx;
+    if (i < 0 || i > subs.length) return false;
+    setSubFilterIdx(i - 1);
+    updateNavHighlight();
+    return true;
+  }
+  return false;
+}
+
 let chipKeys = [];
 let subFilter = 'All';
 let dragCatIdx = null, dragSubIdx = null;
@@ -567,7 +645,7 @@ function renderCatChips() {
     const label = labels[k] || (esc(k) + ' (' + videos.filter(v => v.category === k).length + ')');
     const ci = cats.indexOf(k);
     const drag = ci >= 0
-      ? ` draggable="true" ondragstart="catDragStart(${ci})" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="catDrop(event,${ci})"`
+      ? ` draggable="true" ondragstart="catDragStart(${ci})" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="catDrop(event,${ci})" ondblclick="renameCatByIdx(${ci})" title="Double-click to rename · drag to reorder"`
       : '';
     return `<button class="catchip ${catFilter === k ? 'active' : ''}"${drag} onclick="setCatFilterIdx(${i})">${label}</button>`;
   }).join('') + `<button class="catchip" onclick="promptNewCategory()" title="Add a category">＋</button>`;
@@ -578,6 +656,7 @@ function setCatFilterIdx(i) {
   subFilter = 'All';
   renderCatChips();
   renderSearch();
+  updateNavHighlight();
 }
 function catDragStart(ci) { dragCatIdx = ci; }
 function catDrop(e, ci) {
@@ -605,7 +684,13 @@ function renderSubChips() {
   el.innerHTML =
     `<button class="catchip ${subFilter === 'All' ? 'active' : ''}" onclick="setSubFilterIdx(-1)">All</button>` +
     list.map((s, i) =>
-      `<button class="catchip ${subFilter === s ? 'active' : ''}" draggable="true" ondragstart="subDragStart(${i})" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="subDrop(event,${i})" onclick="setSubFilterIdx(${i})">${esc(s)} (${videos.filter(v => v.category === cat && v.sub === s).length}) <span class="chip" style="color:var(--accent)" onclick="event.stopPropagation();removeSubCat(${i})" title="Delete subcategory">✕</span></button>`
+      `<span class="catchip ${subFilter === s ? 'active' : ''}" draggable="true"
+         ondragstart="subDragStart(${i})" ondragover="event.preventDefault();this.classList.add('dragover')"
+         ondragleave="this.classList.remove('dragover')" ondrop="subDrop(event,${i})"
+         ondblclick="renameSubByIdx(${i})" title="Double-click to rename · drag to reorder">
+         <span onclick="setSubFilterIdx(${i})" style="cursor:pointer">${esc(s)} (${videos.filter(v => v.category === cat && v.sub === s).length})</span>
+         <span onclick="event.stopPropagation();removeSubCat(${i})" title="Delete subcategory" style="color:var(--accent);cursor:pointer;padding-left:6px">✕</span>
+       </span>`
     ).join('') +
     `<button class="catchip" onclick="addSubCatPrompt()" title="Add a subcategory">＋ sub</button>`;
 }
@@ -613,6 +698,7 @@ function setSubFilterIdx(i) {
   subFilter = i < 0 ? 'All' : (subsOf(catFilter)[i] || 'All');
   renderSubChips();
   renderSearch();
+  updateNavHighlight();
 }
 function addSubCatPrompt() {
   const cat = catFilter;
@@ -638,6 +724,53 @@ function removeSubCat(i) {
   if (subFilter === name) subFilter = 'All';
   renderSubChips(); renderSearch();
 }
+/* ---- renaming (double-click a chip) ---- */
+function renameCatByIdx(ci) {
+  const cats = allCategories();
+  const oldName = cats[ci];
+  if (!oldName) return;
+  const input = prompt('Rename category "' + oldName + '" to:', oldName);
+  if (input === null) return;
+  const newName = input.trim();
+  if (!newName || newName === oldName) return;
+  if (newName.length > 24) { toast('Name too long'); return; }
+  if (cats.some(c => c.toLowerCase() === newName.toLowerCase())) { toast('That category already exists'); return; }
+  const now = Date.now();
+  // built-ins are retired via tombstone and re-created under the new name
+  if (BASE_CATEGORIES.includes(oldName)) deletedCats[oldName] = now;
+  customCats = customCats.filter(c => c.name !== oldName);
+  customCats.push({ name: newName, ts: now });
+  delete deletedCats[newName];
+  if (subCats[oldName]) { subCats[newName] = { list: subsOf(oldName), ts: now }; subCats[oldName] = { list: [], ts: now }; }
+  for (const v of videos) if (v.category === oldName) { v.category = newName; v.ts = now; }
+  const order = (catOrder.list && catOrder.list.length ? catOrder.list : cats).map(n => n === oldName ? newName : n);
+  catOrder = { list: order, ts: now };
+  if (catFilter === oldName) catFilter = newName;
+  store.save('videos', videos); saveCats(); saveSubs(); scheduleSync();
+  renderCatChips(); renderSearch();
+  if (currentView === 'library') renderManageCats();
+  toast('Renamed to ' + newName);
+}
+function renameSubByIdx(i) {
+  const cat = catFilter;
+  const list = subsOf(cat);
+  const oldName = list[i];
+  if (!oldName) return;
+  const input = prompt('Rename subcategory "' + oldName + '" to:', oldName);
+  if (input === null) return;
+  const newName = input.trim();
+  if (!newName || newName === oldName) return;
+  if (newName.length > 24) { toast('Name too long'); return; }
+  if (list.some(s => s.toLowerCase() === newName.toLowerCase())) { toast('That subcategory already exists'); return; }
+  const now = Date.now();
+  subCats[cat] = { list: list.map(s => s === oldName ? newName : s), ts: now };
+  for (const v of videos) if (v.category === cat && v.sub === oldName) { v.sub = newName; v.ts = now; }
+  if (subFilter === oldName) subFilter = newName;
+  store.save('videos', videos); saveSubs(); scheduleSync();
+  renderSubChips(); renderSearch();
+  toast('Renamed to ' + newName);
+}
+
 function subDragStart(i) { dragSubIdx = i; }
 function subDrop(e, i) {
   e.preventDefault();
@@ -813,7 +946,7 @@ function ytCardHtml(v, i) {
     <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}</div>
     <div class="meta">
       <div class="vtitle">${esc(v.title)}</div>
-      <div class="vchan">${esc(v.channel)}</div>
+      <div class="vchan"><button class="chip" title="See this channel's videos" onclick="event.stopPropagation();ytOpenChannel(${i})">${esc(v.channel)} ▸</button></div>
       <div class="actions">
         ${saveBtn}
         <button class="btn ${lib && lib.note ? 'saved' : ''}" onclick="event.stopPropagation();ytToggleNote(${i})">${lib && lib.note ? '🗒 Note •' : '🗒 Note'}</button>
@@ -897,6 +1030,103 @@ function ytPlay(i) {
   const v = ytResults[i]; if (!v) return;
   openPlayer(v.id, v.title);
 }
+
+/* ============ channel browsing ============ */
+let channelIdCache = store.load('chanIds', {});
+function ucidFrom(url) {
+  const m = (url || '').match(/channel\/(UC[0-9A-Za-z_-]{22})/);
+  return m ? m[1] : null;
+}
+async function resolveChannelId(name, url) {
+  const direct = ucidFrom(url);
+  if (direct) return direct;
+  if (channelIdCache[name]) return channelIdCache[name];
+  const remember = (id) => { channelIdCache[name] = id; store.save('chanIds', channelIdCache); return id; };
+  const key = store.load('apikey', '');
+  if (key) {
+    try {
+      const r = await fetchTimeout('https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=' + encodeURIComponent(name) + '&key=' + encodeURIComponent(key), 8000);
+      const j = await r.json();
+      const id = j.items && j.items[0] && j.items[0].id && j.items[0].id.channelId;
+      if (id) return remember(id);
+    } catch (e) { /* fall through */ }
+  }
+  for (const base of INVIDIOUS_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/api/v1/search?q=' + encodeURIComponent(name) + '&type=channel', 6000);
+      const j = await r.json();
+      const hit = Array.isArray(j) ? j.find(x => x.authorId) : null;
+      if (hit) return remember(hit.authorId);
+    } catch (e) { /* try next */ }
+  }
+  for (const base of PIPED_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/search?q=' + encodeURIComponent(name) + '&filter=channels', 6000);
+      const j = await r.json();
+      const hit = (j.items || []).find(x => x.url && x.url.includes('/channel/'));
+      if (hit) return remember(hit.url.split('/channel/')[1].split(/[/?]/)[0]);
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+async function fetchChannelVideos(ucid, name) {
+  const key = store.load('apikey', '');
+  const chanUrl = 'https://www.youtube.com/channel/' + ucid;
+  if (key) {
+    try {
+      const r = await fetchTimeout('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&order=date&channelId=' + ucid + '&key=' + encodeURIComponent(key), 8000);
+      const j = await r.json();
+      if (j.items) return j.items.filter(it => it.id && it.id.videoId).map(it => ({
+        id: it.id.videoId,
+        title: (it.snippet.title || '').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
+        channel: it.snippet.channelTitle || name,
+        channelUrl: chanUrl, duration: ''
+      }));
+    } catch (e) { /* fall through */ }
+  }
+  for (const base of INVIDIOUS_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/api/v1/channels/' + ucid + '/videos?sort_by=newest', 6000);
+      const j = await r.json();
+      const vids = j.videos || (Array.isArray(j) ? j : null);
+      if (vids && vids.length) return vids.filter(it => it.videoId).map(it => ({
+        id: it.videoId, title: it.title, channel: it.author || name,
+        channelUrl: chanUrl, duration: it.lengthSeconds > 0 ? fmtSecs(it.lengthSeconds) : ''
+      }));
+    } catch (e) { /* try next */ }
+  }
+  for (const base of PIPED_INSTANCES) {
+    try {
+      const r = await fetchTimeout(base + '/channel/' + ucid, 6000);
+      const j = await r.json();
+      const vids = (j.relatedStreams || []).filter(it => it.url && it.url.includes('watch?v='));
+      if (vids.length) return vids.map(it => ({
+        id: it.url.split('watch?v=')[1].slice(0, 11), title: it.title,
+        channel: j.name || name, channelUrl: chanUrl,
+        duration: it.duration > 0 ? fmtSecs(it.duration) : ''
+      }));
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+async function browseChannel(name, url) {
+  setView('search');
+  if (scope !== 'youtube') setScope('youtube');
+  const box = $('searchResults'), hint = $('searchHint');
+  $('searchEmpty').classList.add('hidden');
+  hint.textContent = '';
+  box.innerHTML = '<div class="loading">Loading ' + esc(name) + '…</div>';
+  const ucid = await resolveChannelId(name, url);
+  if (!ucid) { box.innerHTML = ''; hint.textContent = 'Could not find that channel right now — try again in a moment.'; return; }
+  const vids = await fetchChannelVideos(ucid, name);
+  if (!vids) { box.innerHTML = ''; hint.textContent = 'Could not load videos from ' + name + ' right now.'; return; }
+  const visible = vids.filter(v => !isHidden(v.id) && !isBlockedChannel(v.channel));
+  ytResults = visible;
+  hint.textContent = 'Latest from ' + name + ' · ' + visible.length + ' videos';
+  box.innerHTML = visible.map((v, i) => ytCardHtml(v, i)).join('');
+}
+function ytOpenChannel(i) { const v = ytResults[i]; if (v) browseChannel(v.channel, v.channelUrl); }
+function libOpenChannel(id) { const v = videos.find(x => x.id === id); if (v) browseChannel(v.channel, v.channelUrl); }
 function ytSaveVideoCat(i, ci) { ytSaveVideo(i, allCategories()[ci]); }
 function ytUnsave(i) {
   const v = ytResults[i]; if (!v) return;
@@ -944,7 +1174,7 @@ function cardHtml(v) {
     <div class="thumb"><img loading="lazy" src="${thumbUrl(v.id)}" alt="">${v.duration ? '<span class="dur">' + esc(v.duration) + '</span>' : ''}${pbarHtml(v)}</div>
     <div class="meta">
       <div class="vtitle">${v.fav ? '<span style="color:var(--accent)">★</span> ' : ''}${esc(v.title)}</div>
-      <div class="vchan"><button class="chip" onclick="event.stopPropagation();searchFor('${esc(v.channel).replace(/'/g, "\\'")}')">${esc(v.channel)}</button><span class="badge">${esc(v.category || 'Others')}</span></div>
+      <div class="vchan"><button class="chip" title="See this channel's videos" onclick="event.stopPropagation();libOpenChannel('${esc(v.id)}')">${esc(v.channel)} ▸</button><span class="badge">${esc(v.category || 'Others')}</span></div>
       <div class="actions">
         <button class="btn ${v.fav ? 'saved' : ''}" title="Favorite" onclick="event.stopPropagation();toggleFav('${esc(v.id)}')">${v.fav ? '★' : '☆'}</button>
         <select class="catselect" onclick="event.stopPropagation()" onchange="setVideoCategory('${esc(v.id)}', this.value)">${catOptions}</select>
@@ -1005,21 +1235,24 @@ function toggleChannel(name, url) {
   renderSearch();
   if (currentView === 'channels') renderChannels();
 }
+let sortedChans = [];
 function renderChannels() {
   const list = $('chanList'), empty = $('chanEmpty');
   if (!savedChannels.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
-  list.innerHTML = savedChannels
-    .slice().sort((a, b) => a.name.localeCompare(b.name))
-    .map(c => `<div class="chancard">
-      <div class="cname" onclick="searchFor('${esc(c.name).replace(/'/g, "\\'")}')">${esc(c.name)}</div>
+  sortedChans = savedChannels.slice().sort((a, b) => a.name.localeCompare(b.name));
+  list.innerHTML = sortedChans
+    .map((c, i) => `<div class="chancard">
+      <div class="cname" onclick="browseChannelIdx(${i})">${esc(c.name)} ▸</div>
       <div class="ccount">${videoCountFor(c.name)} video(s) in your library</div>
       <div class="cactions">
-        <button class="btn" onclick="searchFor('${esc(c.name).replace(/'/g, "\\'")}')">Show videos</button>
+        <button class="btn primary" onclick="browseChannelIdx(${i})">Browse uploads</button>
+        <button class="btn" onclick="searchFor('${esc(c.name).replace(/'/g, "\\'")}')">Saved videos</button>
         <button class="btn danger" onclick="toggleChannel('${esc(c.name).replace(/'/g, "\\'")}','')">Unsave</button>
       </div>
     </div>`).join('');
 }
+function browseChannelIdx(i) { const c = sortedChans[i]; if (c) browseChannel(c.name, c.url); }
 
 /* ============ player ============ */
 /* YouTube's embedded player refuses pages that send no referrer (Error 153),
@@ -1178,16 +1411,16 @@ document.addEventListener('keydown', e => {
     setView('search');
     $('q').focus();
   }
-  // ← → switch between "All of YouTube" and "My library"
-  if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && currentView === 'search') {
+  // ↑ ↓ ← → move around the tab / category / subcategory rows
+  const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (arrows[e.key] && currentView === 'search') {
     const el = document.activeElement;
     if (['TEXTAREA', 'SELECT'].includes(el.tagName)) return;              // never steal from note boxes / dropdowns
     if (el.tagName === 'INPUT' && el.value) return;                       // typing? arrows move the cursor as usual
-    const want = e.key === 'ArrowRight' ? 'library' : 'youtube';          // matches the tab order on screen
-    if (want !== scope) {
-      e.preventDefault();
-      setScope(want);
-    }
+    if (!$('player').classList.contains('hidden')) return;                // player open — leave arrows alone
+    if (el.closest && el.closest('#addPanel')) return;                    // working inside the add-by-link panel
+    const [dx, dy] = arrows[e.key];
+    if (navMove(dx, dy)) e.preventDefault();
   }
 });
 
@@ -1206,7 +1439,6 @@ function clearLibrary() {
 }
 function renderLibStats() {
   $('libStats').textContent = videos.length + ' videos, ' + savedChannels.length + ' saved channels. Data lives in this browser — export a backup if you want a portable copy.';
-  $('pasteCat').innerHTML = allCategories().map(c => `<option ${c === 'Others' ? 'selected' : ''}>${esc(c)}</option>`).join('');
   renderManageCats();
   renderBlocked();
 }
@@ -1244,6 +1476,27 @@ function extractIds(text) {
   let m; while ((m = re.exec(text))) if (!ids.includes(m[1])) ids.push(m[1]);
   return ids;
 }
+function toggleAddPanel() {
+  const p = $('addPanel');
+  const opening = p.classList.contains('hidden');
+  p.classList.toggle('hidden', !opening);
+  $('addLinkBtn').classList.toggle('active', opening);
+  if (opening) { renderPasteCats(); $('pasteBox').focus(); }
+}
+function renderPasteCats() {
+  const sel = $('pasteCat');
+  const keep = sel.value;
+  sel.innerHTML = allCategories().map(c => `<option ${c === (keep || 'Others') ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  renderPasteSubs();
+}
+function renderPasteSubs() {
+  const cat = $('pasteCat').value;
+  const subs = subsOf(cat);
+  const sel = $('pasteSub');
+  sel.classList.toggle('hidden', !subs.length);
+  sel.innerHTML = '<option value="">— no subcategory —</option>' + subs.map(s => `<option>${esc(s)}</option>`).join('');
+}
+
 async function importPasted() {
   const text = $('pasteBox').value;
   const ids = extractIds(text);
@@ -1261,10 +1514,13 @@ async function importPasted() {
     results.push(meta);
   }
   const cat = $('pasteCat').value || 'Others';
-  const added = addVideos(results.map(r => Object.assign(r, { category: cat })));
-  status.textContent = 'Added ' + added + ' new video(s) to ' + cat + '.';
+  const sub = $('pasteSub').value || '';
+  const fav = $('pasteFav').checked;
+  const added = addVideos(results.map(r => Object.assign(r, { category: cat, sub, fav })));
+  status.textContent = 'Added ' + added + ' to ' + cat + (sub ? ' › ' + sub : '') + (fav ? ' ★' : '') + '.';
   $('pasteBox').value = '';
   renderLibStats();
+  if (scope === 'library') { renderCatChips(); renderSearch(); }
 }
 
 /* --- Takeout CSV import --- */
