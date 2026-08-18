@@ -1496,11 +1496,12 @@
   "Workouts": {
    "list": [
     "Upper Body",
+    "Warm Up",
     "Full Body",
     "Cardio",
-    "Warm Up"
+    "Cool down"
    ],
-   "ts": 1787021944188
+   "ts": 1787022025488
   },
   "Food": {
    "list": [
