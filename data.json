@@ -1584,18 +1584,16 @@
  "catOrder": {
   "list": [
    "Workouts",
-   "Warmup",
-   "Cool Down",
    "Self-improvement",
    "Music",
-   "Others",
    "Food",
    "Gardening",
    "IVF",
    "Finance",
-   "Pregnancy"
+   "Pregnancy",
+   "Others"
   ],
-  "ts": 1786928217894
+  "ts": 1787533148926
  },
  "subCats": {
   "Workouts": {
