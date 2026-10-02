@@ -1411,19 +1411,6 @@
    "ts": 1787407719302
   },
   {
-   "id": "gLE3Ga3usdU",
-   "title": "UPPER BODY COOL DOWN & STRETCH (Post-Workout Mobility Routine)",
-   "channel": "MadFit",
-   "channelUrl": "https://www.youtube.com/@MadFit",
-   "duration": "",
-   "category": "Workouts",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-07",
-   "ts": 1787533131471,
-   "sub": ""
-  },
-  {
    "id": "hXuDYMORye0",
    "title": "30 Min Full Body Pregnancy Workout at Home | No Equipment | All Trimesters",
    "channel": "MadFit",
@@ -1630,6 +1617,19 @@
    "note": "",
    "addedAt": "2026-10-01",
    "ts": 1790827777862
+  },
+  {
+   "id": "gLE3Ga3usdU",
+   "title": "UPPER BODY COOL DOWN & STRETCH (Post-Workout Mobility Routine)",
+   "channel": "MadFit",
+   "channelUrl": "https://www.youtube.com/@MadFit",
+   "duration": "",
+   "category": "Workouts",
+   "fav": false,
+   "note": "",
+   "addedAt": "2026-08-07",
+   "ts": 1790908170892,
+   "sub": "Cool down"
   }
  ],
  "channels": [
