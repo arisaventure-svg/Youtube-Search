@@ -574,19 +574,6 @@
    "fav": false
   },
   {
-   "id": "DIoeG9nifFQ",
-   "title": "How Meal Timing Affects Sleep & Metabolism: Best Practices for Men & Women to Optimize Health",
-   "channel": "Dr. Stacy Sims Official",
-   "channelUrl": "https://www.youtube.com/@DrStacySims",
-   "duration": "",
-   "category": "Self-improvement",
-   "sub": "",
-   "fav": false,
-   "note": "",
-   "addedAt": "2026-08-10",
-   "ts": 1786326299930
-  },
-  {
    "id": "BB0QpDx93lk",
    "title": "10 min RESISTANCE BAND BOOTY At Home Workout (Intense)",
    "channel": "MadFit",
@@ -1685,7 +1672,8 @@
   "3P9ySy8Z9ow": 1790839297270,
   "SWvHZkkrAjc": 1790839301320,
   "_BdY8JO6ups": 1790839304320,
-  "tyzOH2tr9_M": 1791081880872
+  "tyzOH2tr9_M": 1791081880872,
+  "DIoeG9nifFQ": 1791082139048
  },
  "deletedChannels": {
   "Mel Robbins": 1786084909142
@@ -2231,6 +2219,10 @@
   "P_ouE8obuoU": {
    "t": 5,
    "ts": 1790997557323
+  },
+  "DIoeG9nifFQ": {
+   "t": 233,
+   "ts": 1791082131730
   }
  },
  "hiddenVideos": {
