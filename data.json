@@ -1678,10 +1678,10 @@
    "duration": "",
    "category": "Food",
    "sub": "",
-   "fav": false,
+   "fav": true,
    "note": "",
    "addedAt": "2026-10-16",
-   "ts": 1792123782141
+   "ts": 1792123791916
   }
  ],
  "channels": [
